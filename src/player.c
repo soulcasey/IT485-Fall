@@ -43,7 +43,7 @@ void player_think(Entity *self)
     if (keys[SDL_SCANCODE_LEFT] && keys[SDL_SCANCODE_RIGHT])
     {
         move = false;
-        //Ignore A and D pressed at the same time
+        //Ignore Left and Right pressed at the same time
     }
 
     else if (keys[SDL_SCANCODE_LEFT] && leftfeet)

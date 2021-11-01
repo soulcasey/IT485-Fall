@@ -75,12 +75,10 @@ int main(int argc,char *argv[])
             
         gf3d_vgraphics_render_end();
 
-        if (agumon_turn() && player_move())
+        if ((agumon_turn() && player_move()) || keys[SDL_SCANCODE_ESCAPE])
         {
-            done = 1;
+            done = 1; // exit condition
         }
-
-        if (keys[SDL_SCANCODE_ESCAPE])done = 1; // exit condition
     }    
     
     world_delete(w);
