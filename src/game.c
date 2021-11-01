@@ -39,7 +39,7 @@ int main(int argc,char *argv[])
         "gf3d",                 //program name
         1200,                   //screen width
         700,                    //screen height
-        vector4d(0.51,0.75,1,1),//background color
+        vector4d(1,0,0,1),      //background color
         0,                      //fullscreen
         validate                //validation
     );
@@ -75,7 +75,7 @@ int main(int argc,char *argv[])
             
         gf3d_vgraphics_render_end();
 
-        if ((agumon_turn() && player_move()) || keys[SDL_SCANCODE_ESCAPE])
+        if ((agumon_turn() && player_move()) || -gf3d_camera_get_y_position() > 300 || keys[SDL_SCANCODE_ESCAPE])
         {
             done = 1; // exit condition
         }

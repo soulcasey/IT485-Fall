@@ -53,6 +53,8 @@ void gf3d_camera_set_position(Vector3D position);
  */
 void gf3d_camera_set_scale(Vector3D scale);
 
+int gf3d_camera_get_y_position();
+
 /**
  * @brief explicitely set the camera positon, holding all other parameters the same
  * @param rotation the new rotation for the camera (pitch[x], roll[y], yaw[z])

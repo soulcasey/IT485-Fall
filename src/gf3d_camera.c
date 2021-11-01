@@ -96,4 +96,9 @@ void gf3d_camera_set_scale(Vector3D scale)
     else gf3d_camera.scale.z = 1/scale.z;
 }
 
+int gf3d_camera_get_y_position()
+{
+    return gf3d_camera.position.y;
+}
+
 /*eol@eof*/
