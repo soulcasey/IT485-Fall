@@ -2,6 +2,7 @@
 #define __AGUMON_H__
 
 #include "entity.h"
+#include <stdbool.h>
 
 /**
  * @brief Create a new agumon entity
@@ -10,5 +11,6 @@
  */
 Entity *agumon_new(Vector3D position);
 
+bool agumon_turn();
 
 #endif

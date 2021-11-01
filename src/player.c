@@ -1,12 +1,15 @@
 #include "simple_logger.h"
 #include "gfc_types.h"
-
+#include <stdbool.h>
 #include "gf3d_camera.h"
 #include "player.h"
 
-
+bool player_move();
 void player_think(Entity *self);
 void player_update(Entity *self);
+Bool leftfeet = true;
+Bool move = false;
+float speed = 1;
 
 Entity *player_new(Vector3D position)
 {
@@ -27,24 +30,41 @@ Entity *player_new(Vector3D position)
     return ent;
 }
 
+bool player_move()
+{
+    return move;
+}
 
 void player_think(Entity *self)
 {
     const Uint8 * keys;
     keys = SDL_GetKeyboardState(NULL); // get the keyboard state for this frame
 
-    if (keys[SDL_SCANCODE_W])self->position.y += 0.10;
-    if (keys[SDL_SCANCODE_S])self->position.y -= 0.10;
-    if (keys[SDL_SCANCODE_A])self->position.x -= 0.10;
-    if (keys[SDL_SCANCODE_D])self->position.x += 0.10;
-    if (keys[SDL_SCANCODE_SPACE])self->position.z += 0.10;
-    if (keys[SDL_SCANCODE_Z])self->position.z -= 0.10;
-    
-    if (keys[SDL_SCANCODE_UP])self->rotation.x += 0.0010;
-    if (keys[SDL_SCANCODE_DOWN])self->rotation.x -= 0.0010;
-    if (keys[SDL_SCANCODE_LEFT])self->rotation.z += 0.0010;
-    if (keys[SDL_SCANCODE_RIGHT])self->rotation.z -= 0.0010;
+    if (keys[SDL_SCANCODE_LEFT] && keys[SDL_SCANCODE_RIGHT])
+    {
+        move = false;
+        //Ignore A and D pressed at the same time
+    }
 
+    else if (keys[SDL_SCANCODE_LEFT] && leftfeet)
+    {
+        self->position.y += speed;
+        leftfeet = false;
+        move = true;
+        slog("Move Forward");
+    }
+    else if (keys[SDL_SCANCODE_RIGHT] && !leftfeet)
+    {
+        self->position.y += speed;
+        leftfeet = true;
+        move = true;
+        slog("Move Forward");
+    }
+
+    else
+    {
+        move = true;
+    }
 }
 
 void player_update(Entity *self)
