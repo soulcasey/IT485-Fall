@@ -15,6 +15,7 @@
 #include "agumon.h"
 #include "player.h"
 #include "world.h"
+#include "environment.h"
 
 int main(int argc,char *argv[])
 {
@@ -51,6 +52,12 @@ int main(int argc,char *argv[])
 
     agumon_new(vector3d(0, 300, 0));
 
+    for (int i = 1; i <= 10; i++)
+    {
+        environment_new(vector3d(4, i*30, -7));
+        environment_new(vector3d(-4, i*30, -7));
+    }
+
     // main game loop
 	slog_sync();
     gf3d_camera_set_scale(vector3d(1,1,1));
@@ -75,9 +82,9 @@ int main(int argc,char *argv[])
             
         gf3d_vgraphics_render_end();
 
-        if ((agumon_turn() && player_move()) || -gf3d_camera_get_y_position() > 300 || keys[SDL_SCANCODE_ESCAPE])
+        if (/*(agumon_turn() && player_move()) || */-gf3d_camera_get_y_position() > 290 || keys[SDL_SCANCODE_ESCAPE])
         {
-            done = 1; // exit condition
+            done = 1; // End game if move while agumon is front, go pass agumon, or esc key
         }
     }    
     
@@ -91,3 +98,5 @@ int main(int argc,char *argv[])
 }
 
 /*eol@eof*/
+
+

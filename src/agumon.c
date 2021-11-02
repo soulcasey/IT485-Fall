@@ -10,16 +10,16 @@ void agumon_think(Entity *self);
 void agumon_update(Entity *self);
 bool agumon_turn();
 
-int countdown = 0;
+int status; //1 = turning back, 2 = back, 3 = turning front, 4 = front
 
-int status = 1; //1 = turning back, 2 = back, 3 = turning front, 4 = front
-double front_turn_speed = 300;
+double front_turn_timer = 0.5;
 double front_stay_timer = 2;
 
-double back_turn_speed = 600;
+double back_turn_timer = 1;
 double back_stay_timer = 4;
 
-unsigned int timer;
+double timer; //Timer to check how many seconds passed 
+double turn_count; //Track turn to have accurate 3.14 radian turn
 
 bool turn = false;
 
@@ -33,11 +33,15 @@ Entity *agumon_new(Vector3D position)
         slog("UGH OHHHH, no agumon for you!");
         return NULL;
     }
-    
     ent->model = gf3d_model_load("dino");
     ent->think = agumon_think;
     ent->update = agumon_update;
     vector3d_copy(ent->position,position);
+
+    status = 1;
+    timer = SDL_GetTicks() / 1000.0;
+    turn_count = 0;
+
     return ent;
 }
 
@@ -57,11 +61,16 @@ void agumon_update(Entity *self)
 
     if (status == 1)
     {
-        self->rotation.z -= 3.1 / back_turn_speed; //Turn from front to back
-        if (countdown >= back_turn_speed)
+        double rotation = 3.14 * (SDL_GetTicks() / 1000.0 - timer) / back_turn_timer;
+        self->rotation.z -= rotation;
+        turn_count += rotation;
+        timer = SDL_GetTicks() / 1000.0;
+
+        if (turn_count >= 3.14)
         {
+            turn_count = 0;
             status = 2;
-            timer = SDL_GetTicks()/1000;
+            timer = SDL_GetTicks() / 1000.0;
             turn = false;
             slog("RED LIGHT");
         }
@@ -72,17 +81,22 @@ void agumon_update(Entity *self)
         if ((SDL_GetTicks()/1000 - timer) >= back_stay_timer)
         {
             status = 3;
-            countdown = 0;
+            timer = SDL_GetTicks() / 1000.0;
         }
     }
 
     if (status == 3)
     {
-        self->rotation.z += 3.1 / front_turn_speed; //Turn from back to front
-        if (countdown >= front_turn_speed)
+        double rotation = 3.14 * (SDL_GetTicks() / 1000.0 - timer) / front_turn_timer;
+        self->rotation.z += rotation;
+        turn_count += rotation;
+        timer = SDL_GetTicks() / 1000.0;
+
+        if (turn_count >= 3.14)
         {
+            turn_count = 0;
             status = 4;
-            timer = SDL_GetTicks() / 1000;
+            timer = SDL_GetTicks() / 1000.0;
             turn = true;
             slog("GREEN LIGHT");
         }
@@ -93,11 +107,12 @@ void agumon_update(Entity *self)
         if ((SDL_GetTicks() / 1000 - timer) >= front_stay_timer)
         {
             status = 1;
-            countdown = 0;
-            back_turn_speed *= 0.85;
+            timer = SDL_GetTicks() / 1000.0;
+            back_stay_timer *= 0.9; //Makes timer faster and faster 
+            back_turn_timer *= 0.9;
+            front_turn_timer *= 0.9;
         }
     }
-    countdown += 1;
 }
 
 /*eol@eof*/

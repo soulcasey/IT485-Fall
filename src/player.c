@@ -65,6 +65,16 @@ void player_think(Entity *self)
     {
         move = true;
     }
+
+    if (keys[SDL_SCANCODE_A])
+    {
+        self->position.x = -4;
+    }
+
+    if (keys[SDL_SCANCODE_D])
+    {
+        self->position.x = 4;
+    }
 }
 
 void player_update(Entity *self)
