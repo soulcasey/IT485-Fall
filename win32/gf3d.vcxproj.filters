@@ -120,7 +120,7 @@
     <ClInclude Include="..\include\gf3d_vqueues.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="..\include\environment.h">
+    <ClInclude Include="..\include\floor.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
@@ -227,12 +227,12 @@
     <ClCompile Include="..\src\gf3d_vqueues.c">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\src\environment.c">
+    <ClCompile Include="..\src\floor.c">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <None Include="..\include\testworld.json">
+    <None Include="..\include\floor.json">
       <Filter>Header Files</Filter>
     </None>
     <None Include="..\src\Makefile">

@@ -1,4 +1,5 @@
-#include <SDL.h>            
+#include <SDL.h>    
+#include <time.h>
 
 #include "simple_logger.h"
 #include "gfc_vector.h"
@@ -15,10 +16,11 @@
 #include "agumon.h"
 #include "player.h"
 #include "world.h"
-#include "environment.h"
+#include "floor.h"
 
 int main(int argc,char *argv[])
 {
+    srand(time(NULL));
     int done = 0;
     int a;
     Uint8 validate = 0;
@@ -48,14 +50,24 @@ int main(int argc,char *argv[])
     
     entity_system_init(1024);
     
-    w = world_load("config/testworld.json");
+    w = world_load("config/floor.json");
 
     agumon_new(vector3d(0, 300, 0));
 
     for (int i = 1; i <= 10; i++)
     {
-        environment_new(vector3d(4, i*30, -7));
-        environment_new(vector3d(-4, i*30, -7));
+        int random = rand() % 100;
+        slog("RAAAAAAAAAAAAAAAANDOM %i", random);
+        if (random < 50)
+        {
+            random = 1;
+        }
+        else
+        {
+            random = -1;
+        }
+        floor_real_new(vector3d(4 * random, i*30, -7));
+        floor_fake_new(vector3d(-4 * random, i*30, -7));
     }
 
     // main game loop

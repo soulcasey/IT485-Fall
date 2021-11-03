@@ -105,7 +105,7 @@
     <ClInclude Include="..\gfc\simple_logger\include\simple_logger.h" />
     <ClInclude Include="..\include\agumon.h" />
     <ClInclude Include="..\include\entity.h" />
-    <ClInclude Include="..\include\environment.h" />
+    <ClInclude Include="..\include\floor.h" />
     <ClInclude Include="..\include\gf3d_camera.h" />
     <ClInclude Include="..\include\gf3d_commands.h" />
     <ClInclude Include="..\include\gf3d_extensions.h" />
@@ -141,7 +141,7 @@
     <ClCompile Include="..\gfc\src\gfc_vector.c" />
     <ClCompile Include="..\src\agumon.c" />
     <ClCompile Include="..\src\entity.c" />
-    <ClCompile Include="..\src\environment.c" />
+    <ClCompile Include="..\src\floor.c" />
     <ClCompile Include="..\src\game.c" />
     <ClCompile Include="..\src\gf3d_camera.c" />
     <ClCompile Include="..\src\gf3d_commands.c" />
@@ -160,7 +160,7 @@
     <ClCompile Include="..\src\world.c" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="..\include\testworld.json" />
+    <None Include="..\include\floor.json" />
     <None Include="..\src\Makefile" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
