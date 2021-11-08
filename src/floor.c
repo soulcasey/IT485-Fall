@@ -5,9 +5,11 @@
 #include <time.h>
 #include <math.h>
 #include <stdlib.h>
+#include "agumon.h"
 
-void agumon_think(Entity* self);
-void agumon_update(Entity* self);
+void floor_think(Entity* self);
+void floor_update(Entity* self);
+
 
 Entity *floor_real_new(Vector3D position)
 {
@@ -26,7 +28,7 @@ Entity *floor_real_new(Vector3D position)
     return ent;
 }
 
-Entity* floor_fake_new(Vector3D position)
+Entity *floor_fake_new(Vector3D position)
 {
     Entity* ent = NULL;
 
@@ -37,8 +39,10 @@ Entity* floor_fake_new(Vector3D position)
         return NULL;
     }
 
-    ent->model = gf3d_model_load("floor_fake");
-    ent->scale = vector3d(3, 11, 0.5);
+    ent->model = gf3d_model_load("floor_real");
+    ent->scale = vector3d(0, 0, 0);
+    ent->think = floor_think;
+    ent->update = floor_update;
     vector3d_copy(ent->position, position);
     return ent;
 }
@@ -51,6 +55,15 @@ void floor_think(Entity* self)
 void floor_update(Entity* self)
 {
     if (!self)return;
+    if (!agumon_turn() && agumon_initial())
+    {
+        self->scale = vector3d(3, 11, 0.5);
+    }
+    else
+    {
+        self->scale = vector3d(0, 0, 0);
+    }
 }
+
 
 /*eol@eof*/

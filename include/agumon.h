@@ -9,8 +9,10 @@
  * @param position where to spawn the aguman at
  * @return NULL on error, or an agumon entity pointer on success
  */
-Entity *agumon_new(Vector3D position);
+Entity* agumon_new(Vector3D position);
 
 bool agumon_turn();
+
+bool agumon_initial();
 
 #endif

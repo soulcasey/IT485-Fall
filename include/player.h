@@ -12,4 +12,6 @@ Entity *player_new(Vector3D position);
 
 bool player_move();
 
+int player_position_y();
+
 #endif

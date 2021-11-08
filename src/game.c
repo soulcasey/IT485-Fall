@@ -40,8 +40,8 @@ int main(int argc,char *argv[])
     slog("gf3d begin");
     gf3d_vgraphics_init(
         "gf3d",                 //program name
-        1200,                   //screen width
-        700,                    //screen height
+        1280,                   //screen width
+        720,                    //screen height
         vector4d(1,0,0,1),      //background color
         0,                      //fullscreen
         validate                //validation
@@ -52,12 +52,13 @@ int main(int argc,char *argv[])
     
     w = world_load("config/floor.json");
 
-    agumon_new(vector3d(0, 300, 0));
+    agumon_new(vector3d(0, 320, 0));
 
-    for (int i = 1; i <= 10; i++)
+    floor_real_new(vector3d(-4, 0, -7));
+
+    for (int i = 0; i < 10; i++)
     {
         int random = rand() % 100;
-        slog("RAAAAAAAAAAAAAAAANDOM %i", random);
         if (random < 50)
         {
             random = 1;
@@ -66,16 +67,17 @@ int main(int argc,char *argv[])
         {
             random = -1;
         }
-        floor_real_new(vector3d(4 * random, i*30, -7));
-        floor_fake_new(vector3d(-4 * random, i*30, -7));
+        floor_real_new(vector3d(4 * random, (i+1)*30, -7));
+        floor_fake_new(vector3d(-4 * random, (i+1)*30, -7));
     }
 
     // main game loop
 	slog_sync();
     gf3d_camera_set_scale(vector3d(1,1,1));
     
-    slog("gf3d main loop begin");
-    player_new(vector3d(0,0,0));
+    slog
+    ("gf3d main loop begin");
+    player_new(vector3d(-4,0,0));
     while(!done)
     {
         SDL_PumpEvents();   // update SDL's internal event structures
@@ -94,7 +96,7 @@ int main(int argc,char *argv[])
             
         gf3d_vgraphics_render_end();
 
-        if (/*(agumon_turn() && player_move()) || */-gf3d_camera_get_y_position() > 290 || keys[SDL_SCANCODE_ESCAPE])
+        if (/*(agumon_turn() && player_move()) || -gf3d_camera_get_y_position() > 290 ||*/ keys[SDL_SCANCODE_ESCAPE] || gf3d_camera_get_z_position() > 100)
         {
             done = 1; // End game if move while agumon is front, go pass agumon, or esc key
         }
@@ -110,5 +112,3 @@ int main(int argc,char *argv[])
 }
 
 /*eol@eof*/
-
-

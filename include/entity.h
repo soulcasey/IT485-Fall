@@ -17,10 +17,10 @@ typedef struct Entity_S
     void       (*damage)(struct Entity_S *self, float damage, struct Entity_S *inflictor); /**<pointer to the think function*/
     void       (*onDeath)(struct Entity_S *self); /**<pointer to an funciton to call when the entity dies*/
     
+    Vector3D    Mins, Maxs; /**<vectors desciping a bounding box around the position of the entity*/
     Vector3D    position;  
     Vector3D    velocity;
     Vector3D    acceleration;
-    
     
     Vector3D    scale;
     Vector3D    rotation;

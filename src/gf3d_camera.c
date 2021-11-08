@@ -101,4 +101,9 @@ int gf3d_camera_get_y_position()
     return gf3d_camera.position.y;
 }
 
+int gf3d_camera_get_z_position()
+{
+    return gf3d_camera.position.z;
+}
+
 /*eol@eof*/
