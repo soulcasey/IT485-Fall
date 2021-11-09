@@ -12,6 +12,10 @@ Entity *player_new(Vector3D position);
 
 bool player_move();
 
+bool player_grounded();
+
+bool player_dead();
+
 int player_position_y();
 
 #endif

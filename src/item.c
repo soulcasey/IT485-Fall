@@ -8,6 +8,9 @@
 
 void item_think(Entity* self);
 void item_update(Entity* self);
+int item_position_y();
+
+float position_y;
 
 Entity* item_new(Vector3D position)
 {
@@ -31,11 +34,17 @@ Entity* item_new(Vector3D position)
 void item_think(Entity* self)
 {
     if (!self)return;
+    position_y = self->position.y;
 }
 
 void item_update(Entity* self)
 {
     if (!self)return;
+}
+
+int item_position_y()
+{
+    return position_y;
 }
 
 

@@ -50,7 +50,7 @@ int main(int argc,char *argv[])
 
     menu();
     game(argc, argv);
-    end();
+    //end();
 }
 
 void menu() //Main menu hub
@@ -89,7 +89,7 @@ void game(int argc, char* argv[])
     floor_real_new(vector3d(-4, 0, -7));
     Entity* item;
 
-    int item_random = rand() % 5;
+    int item_random = rand() % 4 + 2;
     for (int i = 0; i < 10; i++)
     {
         int random = rand() % 100;
@@ -110,9 +110,8 @@ void game(int argc, char* argv[])
     }
 
     gf3d_camera_set_scale(vector3d(1, 1, 1));
-    player_new(vector3d(-4, 0, 0));
+    Entity* player = player_new(vector3d(-4, 0, 0));
 
-    //entity_free(floor_real);
     while (!hub)
     {
         SDL_PumpEvents();   // update SDL's internal event structures
@@ -131,14 +130,26 @@ void game(int argc, char* argv[])
 
         gf3d_vgraphics_render_end();
 
-        if ((agumon_turn() && player_move()) || -gf3d_camera_get_y_position() > 290 || gf3d_camera_get_z_position() > 50)
+        if ((abs(player_position_y() - (item_random+1)*30) <= 1) && item->_inuse == 1)
+        {
+            slog("Item collected");
+            entity_free(item);
+        }
+
+        if (((-gf3d_camera_get_y_position() > 290) || player_dead()) && !done)
         {
             score = SDL_GetTicks() - score;
             slog("Score(s): %i", score / 1000);
-            hub = true; // End game if move while agumon is front, go pass agumon, or esc key
+            done = true;
+        }
+
+        if (player_dead() && keys[SDL_SCANCODE_ESCAPE])
+        {
+            hub = true;
         }
     }
     world_delete(w);
+    entity_free(agumon);
     slog_sync();
 }
 

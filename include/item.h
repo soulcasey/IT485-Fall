@@ -11,4 +11,6 @@
  */
 Entity* item_new(Vector3D position);
 
+int item_position_y();
+
 #endif
