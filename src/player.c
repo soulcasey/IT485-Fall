@@ -72,7 +72,7 @@ void player_think(Entity* self)
         //Ignore Left and Right pressed at the same time
     }
 
-    else if (keys[SDL_SCANCODE_A] && leftfeet)
+    else if (keys[SDL_SCANCODE_A] && leftfeet && grounded)
     {
         self->position.y += speed;
         leftfeet = false;
@@ -80,7 +80,7 @@ void player_think(Entity* self)
         slog("Move Forward");
         jump_stop = false; //Reset jump to make sure user doesnt accidentally double jump
     }
-    else if (keys[SDL_SCANCODE_D] && !leftfeet)
+    else if (keys[SDL_SCANCODE_D] && !leftfeet && grounded)
     {
         self->position.y += speed;
         leftfeet = true;
@@ -176,8 +176,6 @@ void player_think(Entity* self)
         }
     }
     position_y = self->position.y;
-    slog("%f", position_y);
-
     if (keys[SDL_SCANCODE_UP])
     {
         self->position.z += 0.001;

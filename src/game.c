@@ -1,5 +1,6 @@
 #include <SDL.h>    
 #include <time.h>
+#include <math.h>
 
 #include "simple_logger.h"
 #include "gfc_vector.h"
@@ -17,24 +18,24 @@
 #include "player.h"
 #include "world.h"
 #include "floor.h"
+#include "item.h"
+
+void menu();
+void game(int argc, char* argv[]);
+void end();
+
+bool active = false;
+bool hub = true;
+bool done = false;
+
+int score;
+const Uint8* keys;
+Uint8 validate = 0;
 
 int main(int argc,char *argv[])
 {
     srand(time(NULL));
-    int done = 0;
     int a;
-    Uint8 validate = 0;
-    const Uint8 * keys;
-    
-    World *w;
-    
-    for (a = 1; a < argc;a++)
-    {
-        if (strcmp(argv[a],"-disable_validate") == 0)
-        {
-            validate = 0;
-        }
-    }
     
     init_logger("gf3d.log");    
     slog("gf3d begin");
@@ -46,16 +47,49 @@ int main(int argc,char *argv[])
         0,                      //fullscreen
         validate                //validation
     );
-	slog_sync();
-    
+
+    menu();
+    game(argc, argv);
+    end();
+}
+
+void menu() //Main menu hub
+{
+    slog("Main Menu");
+    slog("Press SPACE to start the game");
+    while (hub)
+    {
+        keys = SDL_GetKeyboardState(NULL);
+        SDL_PumpEvents();
+        if (keys[SDL_SCANCODE_SPACE])
+        {
+            hub = false;
+        }
+        gf3d_vgraphics_render_start();
+        gf3d_vgraphics_render_end();
+    }
+}
+
+void game(int argc, char* argv[])
+{
+    slog("Game Begin");
+    score = SDL_GetTicks();
+    World* w;
+    for (int a = 1; a < argc; a++)
+    {
+        if (strcmp(argv[a], "-disable_validate") == 0)
+        {
+            validate = 0;
+        }
+    }
     entity_system_init(1024);
-    
-    w = world_load("config/floor.json");
+    slog_sync();
 
-    agumon_new(vector3d(0, 320, 0));
-
+    Entity* agumon = agumon_new(vector3d(0, 320, 0));
     floor_real_new(vector3d(-4, 0, -7));
+    Entity* item;
 
+    int item_random = rand() % 5;
     for (int i = 0; i < 10; i++)
     {
         int random = rand() % 100;
@@ -67,21 +101,23 @@ int main(int argc,char *argv[])
         {
             random = -1;
         }
-        floor_real_new(vector3d(4 * random, (i+1)*30, -7));
-        floor_fake_new(vector3d(-4 * random, (i+1)*30, -7));
+        if (i == item_random) //Summon random item on real floor between 1~5
+        {
+            item = item_new(vector3d(4 * random, (i + 1) * 30, -6));
+        }
+        floor_real_new(vector3d(4 * random, (i + 1) * 30, -7));
+        floor_fake_new(vector3d(-4 * random, (i + 1) * 30, -7));
     }
 
-    // main game loop
-	slog_sync();
-    gf3d_camera_set_scale(vector3d(1,1,1));
-    
-    slog
-    ("gf3d main loop begin");
-    player_new(vector3d(-4,0,0));
-    while(!done)
+    gf3d_camera_set_scale(vector3d(1, 1, 1));
+    player_new(vector3d(-4, 0, 0));
+
+    //entity_free(floor_real);
+    while (!hub)
     {
         SDL_PumpEvents();   // update SDL's internal event structures
         keys = SDL_GetKeyboardState(NULL); // get the keyboard state for this frame
+
         entity_think_all();
         entity_update_all();
         gf3d_camera_update_view();
@@ -90,25 +126,37 @@ int main(int argc,char *argv[])
         // configure render command for graphics command pool
         // for each mesh, get a command and configure it from the pool
         gf3d_vgraphics_render_start();
+        world_draw(w);
+        entity_draw_all();
 
-                world_draw(w);
-                entity_draw_all();
-            
         gf3d_vgraphics_render_end();
 
-        if (/*(agumon_turn() && player_move()) || -gf3d_camera_get_y_position() > 290 ||*/ keys[SDL_SCANCODE_ESCAPE] || gf3d_camera_get_z_position() > 100)
+        if ((agumon_turn() && player_move()) || -gf3d_camera_get_y_position() > 290 || gf3d_camera_get_z_position() > 50)
         {
-            done = 1; // End game if move while agumon is front, go pass agumon, or esc key
+            score = SDL_GetTicks() - score;
+            slog("Score(s): %i", score / 1000);
+            hub = true; // End game if move while agumon is front, go pass agumon, or esc key
         }
-    }    
-    
+    }
     world_delete(w);
-    
-    vkDeviceWaitIdle(gf3d_vgraphics_get_default_logical_device());    
-    //cleanup
-    slog("gf3d program end");
     slog_sync();
-    return 0;
+}
+
+void end() //end hub
+{
+    slog("Game Over");
+    slog("Press SPACE or ESC to end the game");
+    while (hub)
+    {
+        keys = SDL_GetKeyboardState(NULL);
+        SDL_PumpEvents();
+        if (keys[SDL_SCANCODE_SPACE] || keys[SDL_SCANCODE_ESCAPE])
+        {
+            hub = false;
+        }
+        gf3d_vgraphics_render_start();
+        gf3d_vgraphics_render_end();
+    }
 }
 
 /*eol@eof*/

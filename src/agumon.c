@@ -12,7 +12,7 @@ void agumon_update(Entity *self);
 bool agumon_turn();
 bool agumon_intial();
 
-int status; //1 = turning back, 2 = back, 3 = turning front, 4 = front
+int status = 1; //1 = turning back, 2 = back, 3 = turning front, 4 = front
 
 double front_turn_timer = 0.5;
 double front_stay_timer = 2;
@@ -32,7 +32,6 @@ Entity *agumon_new(Vector3D position)
     ent = entity_new();
     if (!ent)
     {
-        slog("UGH OHHHH, no agumon for you!");
         return NULL;
     }
     ent->model = gf3d_model_load("bot");
@@ -40,8 +39,6 @@ Entity *agumon_new(Vector3D position)
     ent->update = agumon_update;
     ent->scale = vector3d(2, 2, 2);
     vector3d_copy(ent->position,position);
-
-    status = 1;
     timer = SDL_GetTicks() / 1000.0;
 
     return ent;
