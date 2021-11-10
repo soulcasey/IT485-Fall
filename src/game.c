@@ -1,6 +1,7 @@
 #include <SDL.h>    
 #include <time.h>
 #include <math.h>
+#include <stdio.h>
 
 #include "simple_logger.h"
 #include "gfc_vector.h"
@@ -19,6 +20,7 @@
 #include "world.h"
 #include "floor.h"
 #include "item.h"
+#include "game.h"
 
 void menu();
 void game(int argc, char* argv[]);
@@ -31,6 +33,8 @@ bool done = false;
 int score;
 const Uint8* keys;
 Uint8 validate = 0;
+int floor_position_array[11];
+
 
 int main(int argc,char *argv[])
 {
@@ -87,6 +91,7 @@ void game(int argc, char* argv[])
 
     Entity* agumon = agumon_new(vector3d(0, 320, 0));
     floor_real_new(vector3d(-4, 0, -7));
+    floor_position_array[0] = 0;
     Entity* item;
 
     int item_random = rand() % 4 + 2;
@@ -106,11 +111,13 @@ void game(int argc, char* argv[])
             item = item_new(vector3d(4 * random, (i + 1) * 30, -6));
         }
         floor_real_new(vector3d(4 * random, (i + 1) * 30, -7));
+        floor_position_array[i + 1] = (i + 1) * 30  * random;
         floor_fake_new(vector3d(-4 * random, (i + 1) * 30, -7));
     }
 
     gf3d_camera_set_scale(vector3d(1, 1, 1));
-    Entity* player = player_new(vector3d(-4, 0, 0));
+    Entity* player = player_new(vector3d(-4, -11, 0));
+
 
     while (!hub)
     {
@@ -143,7 +150,7 @@ void game(int argc, char* argv[])
             done = true;
         }
 
-        if (player_dead() && keys[SDL_SCANCODE_ESCAPE])
+        if (done && keys[SDL_SCANCODE_ESCAPE])
         {
             hub = true;
         }

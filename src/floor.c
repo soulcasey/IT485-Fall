@@ -55,7 +55,7 @@ void floor_think(Entity* self)
 void floor_update(Entity* self)
 {
     if (!self)return;
-    if (!agumon_turn() && agumon_initial())
+    if (!agumon_turn() && agumon_initial()) //Reveals fake floors when agumon turns around
     {
         self->scale = vector3d(3, 11, 0.5);
     }

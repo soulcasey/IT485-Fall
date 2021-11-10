@@ -106,6 +106,7 @@
     <ClInclude Include="..\include\agumon.h" />
     <ClInclude Include="..\include\entity.h" />
     <ClInclude Include="..\include\floor.h" />
+    <ClInclude Include="..\include\game.h" />
     <ClInclude Include="..\include\gf3d_camera.h" />
     <ClInclude Include="..\include\gf3d_commands.h" />
     <ClInclude Include="..\include\gf3d_extensions.h" />

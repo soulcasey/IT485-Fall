@@ -18,4 +18,6 @@ bool player_dead();
 
 int player_position_y();
 
+int floor_position(int n);
+
 #endif

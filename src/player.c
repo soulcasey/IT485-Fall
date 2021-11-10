@@ -5,12 +5,16 @@
 #include "gf3d_camera.h"
 #include "player.h"
 #include "agumon.h"
+#include "game.h"
+#include <math.h>
 
+bool floor_real_step();
 bool player_move();
 int player_position_y();
 bool player_grounded();
 void player_think(Entity *self);
 void player_update(Entity *self);
+//int floor_position(int n);
 
 bool left = true; //Check if player is on the left glass
 bool leftfeet = true;
@@ -23,6 +27,7 @@ double jump_height = 2;
 double jump_speed = 0.05;
 double jump_forward_speed = 0.04;
 double jump_side_speed = 0.028;
+int jump_rest_count = 0;//Need to walk 20 steps for next jump
 Vector3D camera_position;
 
 bool grounded = true; //Check if the player is on ground
@@ -51,7 +56,7 @@ Entity *player_new(Vector3D position)
     ent->rotation.x = -M_PI;
     ent->rotation.y = M_PI;
     ent->position.z = -5.2;
-    return ent;
+
 }
 
 int player_position_y()
@@ -74,7 +79,7 @@ void player_think(Entity* self)
     const Uint8* keys;
     keys = SDL_GetKeyboardState(NULL); // get the keyboard state for this frame
 
-    if ((agumon_turn() && player_move()) || gf3d_camera_get_z_position() > 50)
+    if ((agumon_turn() && player_move()) || gf3d_camera_get_z_position() > 50) // Death when player move while agumon turn or fall
     {
         self->position = vector3d(0, 0, -100);
         dead = true;
@@ -97,6 +102,7 @@ void player_think(Entity* self)
             move = true;
             slog("Move Forward");
             jump_stop = false; //Reset jump to make sure user doesnt accidentally double jump
+            jump_rest_count++;
         }
         else if (keys[SDL_SCANCODE_D] && !leftfeet && grounded)
         {
@@ -105,6 +111,7 @@ void player_think(Entity* self)
             move = true;
             slog("Move Forward");
             jump_stop = false;
+            jump_rest_count++;
         }
 
         else
@@ -112,7 +119,7 @@ void player_think(Entity* self)
             move = true;
         }
 
-        if ((keys[SDL_SCANCODE_W] || keys[SDL_SCANCODE_Q] || keys[SDL_SCANCODE_E] || jump_forward || jump_left || jump_right) && !jump_stop)
+        if ((keys[SDL_SCANCODE_W] || keys[SDL_SCANCODE_Q] || keys[SDL_SCANCODE_E] || jump_forward || jump_left || jump_right) && !jump_stop && jump_rest_count >= 20)
         {
             if (grounded)
             {
@@ -189,14 +196,17 @@ void player_think(Entity* self)
                 jump_forward = false;
                 jump_left = false;
                 jump_right = false;
-
                 jump_stop = true;
+                jump_rest_count = 0;
             }
         }
         position_y = self->position.y;
-    }
 
-    
+        if (grounded && !floor_real_step())
+        {
+            self->velocity.z = -jump_speed * 1.5;
+        }
+    }
 }
 
 void player_update(Entity *self)
@@ -219,5 +229,19 @@ bool player_dead()
     return dead;
 }
 
+bool floor_real_step()
+{
+    for (int i = 0; i < 11; i++)
+    {
+        if (((floor_position_array[i] <= 0) && left) || ((floor_position_array[i] > 0) && !left))
+        {
+            if ((abs(player_position_y()) >= (abs(floor_position_array[i]) - 11)) && (abs(player_position_y()) <= (abs(floor_position_array[i]) + 11)))
+            {
+                return true;
+            }
+        }
+    }
+    return false;
+}
 
 /*eol@eof*/
