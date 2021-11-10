@@ -30,6 +30,10 @@ bool active = false;
 bool hub = true;
 bool done = false;
 
+bool dalgoona_game = false;
+int dalgoona_count = 0;
+bool dalgoona_keypress = false;
+
 int score;
 const Uint8* keys;
 Uint8 validate = 0;
@@ -139,8 +143,26 @@ void game(int argc, char* argv[])
 
         if ((abs(player_position_y() - (item_random+1)*30) <= 1) && item->_inuse == 1)
         {
-            slog("Item collected");
-            entity_free(item);
+            dalgoona_game = true;
+            if (dalgoona_count >= 10)
+            {
+                slog("Yum Dalgoona");
+                dalgoona_game = false;
+                speed *= 2;
+                jump_rest_timer /= 2;
+
+                entity_free(item);
+            }
+            if (keys[SDL_SCANCODE_SPACE] && !dalgoona_keypress)
+            {
+                dalgoona_count++;
+                dalgoona_keypress = true;
+            }
+            if (!keys[SDL_SCANCODE_SPACE] && dalgoona_keypress)
+            {
+                dalgoona_keypress = false;
+            }
+
         }
 
         if (((-gf3d_camera_get_y_position() > 290) || player_dead()) && !done)

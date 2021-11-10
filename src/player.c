@@ -14,7 +14,6 @@ int player_position_y();
 bool player_grounded();
 void player_think(Entity *self);
 void player_update(Entity *self);
-//int floor_position(int n);
 
 bool left = true; //Check if player is on the left glass
 bool leftfeet = true;
@@ -28,6 +27,7 @@ double jump_speed = 0.05;
 double jump_forward_speed = 0.04;
 double jump_side_speed = 0.028;
 int jump_rest_count = 0;//Need to walk 20 steps for next jump
+int jump_rest_timer = 20;
 Vector3D camera_position;
 
 bool grounded = true; //Check if the player is on ground
@@ -87,7 +87,7 @@ void player_think(Entity* self)
         self->rotation.y = 0;
     }
 
-    if (!dead)
+    if (!dead && !dalgoona_game)
     {
         if (keys[SDL_SCANCODE_A] && keys[SDL_SCANCODE_D] && grounded)
         {
@@ -119,7 +119,7 @@ void player_think(Entity* self)
             move = true;
         }
 
-        if ((keys[SDL_SCANCODE_W] || keys[SDL_SCANCODE_Q] || keys[SDL_SCANCODE_E] || jump_forward || jump_left || jump_right) && !jump_stop && jump_rest_count >= 20)
+        if ((keys[SDL_SCANCODE_W] || keys[SDL_SCANCODE_Q] || keys[SDL_SCANCODE_E] || jump_forward || jump_left || jump_right) && !jump_stop && jump_rest_count >= jump_rest_timer)
         {
             if (grounded)
             {

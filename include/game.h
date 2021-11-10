@@ -8,4 +8,6 @@ int floor_array(int n);
 
 int floor_position_array[11];
 
+bool dalgoona_game;
+
 #endif

@@ -18,6 +18,8 @@ bool player_dead();
 
 int player_position_y();
 
-int floor_position(int n);
+double speed;
+
+int jump_rest_timer;
 
 #endif
