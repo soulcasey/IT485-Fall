@@ -25,6 +25,7 @@
 void menu();
 void game(int argc, char* argv[]);
 void end();
+void dalgoona_square();
 
 bool active = false;
 bool hub = true;
@@ -32,7 +33,6 @@ bool done = false;
 
 bool dalgoona_game = false;
 int dalgoona_count = 0;
-bool dalgoona_keypress = false;
 
 int score;
 const Uint8* keys;
@@ -98,7 +98,7 @@ void game(int argc, char* argv[])
     floor_position_array[0] = 0;
     Entity* item;
 
-    int item_random = rand() % 4 + 2;
+    int item_random = rand() % 1 + 1;
     for (int i = 0; i < 10; i++)
     {
         int random = rand() % 100;
@@ -144,7 +144,7 @@ void game(int argc, char* argv[])
         if ((abs(player_position_y() - (item_random+1)*30) <= 1) && item->_inuse == 1)
         {
             dalgoona_game = true;
-            if (dalgoona_count >= 10)
+            if (dalgoona_count == 7)
             {
                 slog("Yum Dalgoona");
                 dalgoona_game = false;
@@ -153,15 +153,7 @@ void game(int argc, char* argv[])
 
                 entity_free(item);
             }
-            if (keys[SDL_SCANCODE_SPACE] && !dalgoona_keypress)
-            {
-                dalgoona_count++;
-                dalgoona_keypress = true;
-            }
-            if (!keys[SDL_SCANCODE_SPACE] && dalgoona_keypress)
-            {
-                dalgoona_keypress = false;
-            }
+            dalgoona_square();
 
         }
 
@@ -196,6 +188,38 @@ void end() //end hub
         }
         gf3d_vgraphics_render_start();
         gf3d_vgraphics_render_end();
+    }
+}
+
+void dalgoona_square()
+{
+    if (keys[SDL_SCANCODE_S] && dalgoona_count == 0)
+    {
+        dalgoona_count = 1;
+    }
+    if (keys[SDL_SCANCODE_Q] && dalgoona_count == 1)
+    {
+        dalgoona_count = 2;
+    }
+    if (keys[SDL_SCANCODE_U] && dalgoona_count == 2)
+    {
+        dalgoona_count = 3;
+    }
+    if (keys[SDL_SCANCODE_A] && dalgoona_count == 3)
+    {
+        dalgoona_count = 4;
+    }
+    if (keys[SDL_SCANCODE_R] && dalgoona_count == 4)
+    {
+        dalgoona_count = 5;
+    }
+    if (keys[SDL_SCANCODE_E] && dalgoona_count == 5)
+    {
+        dalgoona_count = 6;
+    }
+    if (keys[SDL_SCANCODE_RETURN] && dalgoona_count == 6)
+    {
+        dalgoona_count = 7;
     }
 }
 
