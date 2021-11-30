@@ -41,7 +41,7 @@ bool dead = false;
 Entity *player_new(Vector3D position)
 {
     Entity *ent = NULL;
-    
+
     ent = entity_new();
     if (!ent)
     {
@@ -56,7 +56,6 @@ Entity *player_new(Vector3D position)
     ent->rotation.x = -M_PI;
     ent->rotation.y = M_PI;
     ent->position.z = -5.2;
-
 }
 
 int player_position_y()

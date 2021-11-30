@@ -2,7 +2,7 @@
 #define __ENTITY_H__
 
 #include "gfc_types.h"
-
+#include "gfc_audio.h"
 #include "gf3d_model.h"
 
 

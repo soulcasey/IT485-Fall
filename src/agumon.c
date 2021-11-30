@@ -5,12 +5,16 @@
 #include <time.h>
 #include <math.h>
 #include <stdlib.h>
+#include <gfc_audio.h>
 
 void agumon_think(Entity *self);
 void agumon_update(Entity *self);
 
 bool agumon_turn();
 bool agumon_intial();
+
+Sound RedLight;
+Sound GreenLight;
 
 int status = 1; //1 = turning back, 2 = back, 3 = turning front, 4 = front
 
@@ -40,8 +44,31 @@ Entity *agumon_new(Vector3D position)
     ent->scale = vector3d(2, 2, 2);
     vector3d_copy(ent->position,position);
     timer = SDL_GetTicks() / 1000.0;
-
     return ent;
+}
+
+Sound *red_light()
+{
+    Sound *audio = NULL;
+    audio = gfc_sound_load("sounds/redlight.wav", 1.0, 0);
+    if (!audio)
+    {
+        slog("Failed AHHHHHHHHHHHHHHHHHHHHHHHHHHHH");
+        return NULL;
+    }
+    return audio;
+}
+
+Sound* green_light()
+{
+    Sound* audio = NULL;
+    audio = gfc_sound_load("sounds/greenlight.wav", 1.0, 0);
+    if (!audio)
+    {
+        slog("Failed AHHHHHHHHHHHHHHHHHHHHHHHHHHHH");
+        return NULL;
+    }
+    return audio;
 }
 
 bool agumon_turn() //True if bot turned front, false if bot turned back
@@ -76,7 +103,8 @@ void agumon_update(Entity* self)
             timer = SDL_GetTicks() / 1000.0;
             turn = false;
             initial = true;
-            slog("RED LIGHT"); 
+            slog("RED LIGHT");
+            gfc_sound_play(red_light(), 0, 1.0, -1, -1);
         }
     }
 
@@ -102,6 +130,7 @@ void agumon_update(Entity* self)
             timer = SDL_GetTicks() / 1000.0;
             turn = true;
             slog("GREEN LIGHT");
+            gfc_sound_play(green_light(), 0, 1.0, -1, -1);
         }
     }
 
@@ -117,5 +146,6 @@ void agumon_update(Entity* self)
         }
     }
 }
+
 
 /*eol@eof*/

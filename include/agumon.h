@@ -11,6 +11,8 @@
  */
 Entity* agumon_new(Vector3D position);
 
+Sound* red_light();
+
 bool agumon_turn();
 
 bool agumon_initial();

@@ -22,67 +22,24 @@
 #include "item.h"
 #include "game.h"
 
-void menu();
-void game(int argc, char* argv[]);
-void end();
-void dalgoona_square();
-
-bool active = false;
-bool hub = true;
-bool done = false;
-
-bool dalgoona_game = false;
-int dalgoona_count = 0;
-
-int score;
-const Uint8* keys;
-Uint8 validate = 0;
-int floor_position_array[11];
-
-
-int main(int argc,char *argv[])
+int main(int argc, char* argv[])
 {
     srand(time(NULL));
-    int a;
-    
-    init_logger("gf3d.log");    
-    slog("gf3d begin");
-    gf3d_vgraphics_init(
-        "gf3d",                 //program name
-        1280,                   //screen width
-        720,                    //screen height
-        vector4d(1,0,0,1),      //background color
-        0,                      //fullscreen
-        validate                //validation
-    );
 
-    menu();
-    game(argc, argv);
-    //end();
-}
+    bool active = false;
+    bool hub = false;
+    bool done = false;
 
-void menu() //Main menu hub
-{
-    slog("Main Menu");
-    slog("Press SPACE to start the game");
-    while (hub)
-    {
-        keys = SDL_GetKeyboardState(NULL);
-        SDL_PumpEvents();
-        if (keys[SDL_SCANCODE_SPACE])
-        {
-            hub = false;
-        }
-        gf3d_vgraphics_render_start();
-        gf3d_vgraphics_render_end();
-    }
-}
+    bool dalgoona_game = false;
+    int dalgoona_count = 0;
+    bool dalgonna_crunch = false;
 
-void game(int argc, char* argv[])
-{
-    slog("Game Begin");
-    score = SDL_GetTicks();
+    int score;
+    const Uint8* keys;
+    Uint8 validate = 0;
+    int floor_position_array[11];
     World* w;
+
     for (int a = 1; a < argc; a++)
     {
         if (strcmp(argv[a], "-disable_validate") == 0)
@@ -90,15 +47,32 @@ void game(int argc, char* argv[])
             validate = 0;
         }
     }
-    entity_system_init(1024);
+
+    init_logger("gf3d.log");
+    slog("gf3d begin");
+    gf3d_vgraphics_init(
+        "gf3d",                 //program name
+        1280,                   //screen width
+        720,                   //screen height
+        vector4d(1, 0, 0, 1),      //background color
+        0,                      //fullscreen
+        validate                //validation
+    );
     slog_sync();
 
+    score = SDL_GetTicks();
+    
+    entity_system_init(1024);
+
+    gfc_audio_init(2, 1, 1, 1, true, true);
+
     Entity* agumon = agumon_new(vector3d(0, 320, 0));
+
     floor_real_new(vector3d(-4, 0, -7));
     floor_position_array[0] = 0;
     Entity* item;
 
-    int item_random = rand() % 1 + 1;
+    int item_random = 3;
     for (int i = 0; i < 10; i++)
     {
         int random = rand() % 100;
@@ -144,23 +118,34 @@ void game(int argc, char* argv[])
         if ((abs(player_position_y() - (item_random+1)*30) <= 1) && item->_inuse == 1)
         {
             dalgoona_game = true;
-            if (dalgoona_count == 7)
+            if (dalgoona_count >= 10)
             {
                 slog("Yum Dalgoona");
                 dalgoona_game = false;
                 speed *= 2;
                 jump_rest_timer /= 2;
-
                 entity_free(item);
             }
-            dalgoona_square();
-
+            if (keys[SDL_SCANCODE_SPACE] && !dalgonna_crunch)
+            {
+                dalgoona_count += 1;
+                dalgonna_crunch = true;
+            }
+            if (!keys[SDL_SCANCODE_SPACE] && dalgonna_crunch)
+            {
+                dalgonna_crunch = false;
+            }
         }
 
-        if (((-gf3d_camera_get_y_position() > 290) || player_dead()) && !done)
+        if (((-gf3d_camera_get_y_position() > 290) || player_dead()) && !done) // Death
         {
             score = SDL_GetTicks() - score;
             slog("Score(s): %i", score / 1000);
+            done = true;
+        }
+
+        if (keys[SDL_SCANCODE_ESCAPE])
+        {
             done = true;
         }
 
@@ -172,55 +157,6 @@ void game(int argc, char* argv[])
     world_delete(w);
     entity_free(agumon);
     slog_sync();
-}
-
-void end() //end hub
-{
-    slog("Game Over");
-    slog("Press SPACE or ESC to end the game");
-    while (hub)
-    {
-        keys = SDL_GetKeyboardState(NULL);
-        SDL_PumpEvents();
-        if (keys[SDL_SCANCODE_SPACE] || keys[SDL_SCANCODE_ESCAPE])
-        {
-            hub = false;
-        }
-        gf3d_vgraphics_render_start();
-        gf3d_vgraphics_render_end();
-    }
-}
-
-void dalgoona_square()
-{
-    if (keys[SDL_SCANCODE_S] && dalgoona_count == 0)
-    {
-        dalgoona_count = 1;
-    }
-    if (keys[SDL_SCANCODE_Q] && dalgoona_count == 1)
-    {
-        dalgoona_count = 2;
-    }
-    if (keys[SDL_SCANCODE_U] && dalgoona_count == 2)
-    {
-        dalgoona_count = 3;
-    }
-    if (keys[SDL_SCANCODE_A] && dalgoona_count == 3)
-    {
-        dalgoona_count = 4;
-    }
-    if (keys[SDL_SCANCODE_R] && dalgoona_count == 4)
-    {
-        dalgoona_count = 5;
-    }
-    if (keys[SDL_SCANCODE_E] && dalgoona_count == 5)
-    {
-        dalgoona_count = 6;
-    }
-    if (keys[SDL_SCANCODE_RETURN] && dalgoona_count == 6)
-    {
-        dalgoona_count = 7;
-    }
 }
 
 /*eol@eof*/
