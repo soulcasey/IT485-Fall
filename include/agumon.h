@@ -15,9 +15,12 @@ bool agumon_turn();
 
 bool agumon_initial();
 
+double timer;
+
 int status;
 
 bool turn;
+bool initial;
 
 double front_turn_timer;
 double back_turn_timer;

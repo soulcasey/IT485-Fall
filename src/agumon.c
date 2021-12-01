@@ -103,11 +103,14 @@ void agumon_think(Entity *self)
 void agumon_update(Entity* self)
 {
     if (!self)return;
-
     if (!player_dead())
     {
         if (status == 1)
         {
+            if (self->rotation.z == 0)
+            {
+                gfc_sound_play(greenlight(), 0, 0.5, -1, -1);
+            }
             double rotation = 3.14 * (SDL_GetTicks() / 1000.0 - timer) / back_turn_timer;
             self->rotation.z -= rotation;
             timer = SDL_GetTicks() / 1000.0;
@@ -120,7 +123,6 @@ void agumon_update(Entity* self)
                 turn = false;
                 initial = true;
                 slog("RED LIGHT");
-                gfc_sound_play(redlight(), 0, 0.5, -1, -1);
             }
         }
 
@@ -130,6 +132,7 @@ void agumon_update(Entity* self)
             {
                 status = 3;
                 timer = SDL_GetTicks() / 1000.0;
+                gfc_sound_play(redlight(), 0, 0.5, -1, -1);
             }
         }
 
@@ -146,7 +149,6 @@ void agumon_update(Entity* self)
                 timer = SDL_GetTicks() / 1000.0;
                 turn = true;
                 slog("GREEN LIGHT");
-                gfc_sound_play(greenlight(), 0, 0.5, -1, -1);
             }
         }
 

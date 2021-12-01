@@ -28,6 +28,7 @@ int finalscore;
 bool dalgoona_game = false;
 int dalgoona_count = 0;
 bool dalgonna_crunch = false;
+bool dalgoona_finish = false;
 int timescore;
 
 int main(int argc, char* argv[])
@@ -121,7 +122,7 @@ int main(int argc, char* argv[])
 
         gf3d_vgraphics_render_end();
 
-        if ((abs(player_position_y() - 11 - (item_random+1)*30) <= 1) && item->_inuse == 1 && !dalgoona_game && !player_dead()) // Start dalgoona game when reach
+        if ((abs(player_position_y() - 11 - (item_random+1)*30) <= 1) && !dalgoona_finish && !dalgoona_game && !player_dead()) // Start dalgoona game when reach
         {
             dalgoona_count = 0;
             dalgoona_game = true;
@@ -132,11 +133,10 @@ int main(int argc, char* argv[])
         {
             dalgoona_count = 0;
             dalgoona_game = false;
-            slog("Yum Dalgoona");
-            dalgoona_game = false;
             speed *= 2;
             jump_rest_timer /= 2;
             item->scale = vector3d(0, 0, 0);
+            dalgoona_finish = true;
         }
 
         if (((-gf3d_camera_get_y_position() > 290) || player_dead()) && !done) // Death
@@ -162,13 +162,20 @@ int main(int argc, char* argv[])
                 }
                 real[i]->position.x *= random;
                 floor_position_array[i + 1] *= random;
-                item->position.x *= random;
+                if (i == item_random)
+                {
+                    item->position.x *= random;
+                }
                 item->scale = vector3d(0.5, 0.5, 0.5);
                 fake[i]->position.x *= random;
                 dalgoona_game = false;
+                dalgoona_finish = false;
             }
-            timescore = SDL_GetTicks();
+            status = 1;
+            agumon->rotation.z = 0;
+            timer = SDL_GetTicks() / 1000.0;
             reset = false;
+            done = false;
         }
 
         if (keys[SDL_SCANCODE_ESCAPE])

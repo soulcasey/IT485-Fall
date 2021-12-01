@@ -29,7 +29,7 @@ double jump_speed = 0.05;
 double jump_forward_speed = 0.04;
 double jump_side_speed = 0.028;
 int jump_rest_count = 0;//Need to walk 20 steps for next jump
-int jump_rest_timer = 20;
+int jump_rest_timer = 10;
 Vector3D camera_position;
 
 bool grounded = true; //Check if the player is on ground
@@ -92,17 +92,18 @@ void player_think(Entity* self)
     const Uint8* keys;
     keys = SDL_GetKeyboardState(NULL); // get the keyboard state for this frame
 
-    if ((agumon_turn() && player_move()) || gf3d_camera_get_z_position() > 50 || dead) // Death when player move while agumon turn or fall
+    if (((agumon_turn() && player_move()) || gf3d_camera_get_z_position() > 50 || dead) && !reset) // Death when player move while agumon turn or fall
     {
         if (!dead)
         {
             gfc_sound_play(death_sound(), 0, 0.5, -1, -1);
         }
+        finalscore = self->position.y + 11;
         self->position = vector3d(0, -115, 0);
         dead = true;
     }
 
-    if (dead && keys[SDL_SCANCODE_RETURN]) // Restart
+    if ((dead && keys[SDL_SCANCODE_RETURN]) || keys[SDL_SCANCODE_R]) // Restart
     {
         dead = false;
         self->scale = vector3d(0.2, 0.2, 0.2);
@@ -114,14 +115,15 @@ void player_think(Entity* self)
         self->velocity.z = 0;
         left = true;
         grounded = true;
-        status = 1;
         turn = false;
+        initial = false;
         front_turn_timer = 0.5;
         back_turn_timer = 1;
         back_stay_timer = 4;
         speed = 0.5;
-        jump_rest_timer = 20;
+        jump_rest_timer = 10;
         reset = true;
+        finalscore = 0;
     }
 
     if (dalgoona_game && keys[SDL_SCANCODE_SPACE]) // Eating Dalgoona
@@ -143,7 +145,6 @@ void player_think(Entity* self)
             self->position.y += speed;
             leftfeet = false;
             move = true;
-            slog("Move Forward");
             jump_stop = false; //Reset jump to make sure user doesnt accidentally double jump
             jump_rest_count++;
         }
@@ -152,7 +153,6 @@ void player_think(Entity* self)
             self->position.y += speed;
             leftfeet = true;
             move = true;
-            slog("Move Forward");
             jump_stop = false;
             jump_rest_count++;
         }
