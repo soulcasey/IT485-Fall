@@ -19,6 +19,8 @@ typedef struct
 
 World *world_load(char *filename);
 
+Entity* game_background(Vector3D position);
+
 void world_draw(World *world);
 
 void world_delete(World *world);

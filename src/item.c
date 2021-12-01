@@ -23,7 +23,7 @@ Entity* item_new(Vector3D position)
         return NULL;
     }
 
-    ent->model = gf3d_model_load("floor_fake");
+    ent->model = gf3d_model_load("item");
     ent->scale = vector3d(0.5, 0.5, 0.5);
     ent->think = item_think;
     ent->update = item_update;

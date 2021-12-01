@@ -39,7 +39,7 @@ Entity *agumon_new(Vector3D position)
     ent->model = gf3d_model_load("agumon");
     ent->think = agumon_think;
     ent->update = agumon_update;
-    ent->scale = vector3d(2, 2, 2);
+    ent->scale = vector3d(4, 4, 4);
     vector3d_copy(ent->position,position);
     timer = SDL_GetTicks() / 1000.0;
 

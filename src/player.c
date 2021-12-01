@@ -103,7 +103,7 @@ void player_think(Entity* self)
         dead = true;
     }
 
-    if ((dead && keys[SDL_SCANCODE_RETURN]) || keys[SDL_SCANCODE_R]) // Restart
+    if ((dead && keys[SDL_SCANCODE_RETURN])) // Restart
     {
         dead = false;
         self->scale = vector3d(0.2, 0.2, 0.2);

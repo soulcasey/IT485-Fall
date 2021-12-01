@@ -54,10 +54,10 @@ int main(int argc, char* argv[])
     slog("gf3d begin");
     gf3d_vgraphics_init(
         "gf3d",                 //program name
-        1280,                   //screen width
-        720,                   //screen height
+        1920,                   //screen width
+        1080,                   //screen height
         vector4d(1, 0, 0, 1),      //background color
-        0,                      //fullscreen
+        1,                      //fullscreen
         validate                //validation
     );
     slog_sync();
@@ -71,6 +71,8 @@ int main(int argc, char* argv[])
     Entity* agumon = agumon_new(vector3d(0, 320, 0));
 
     Entity* death = agumon_death(vector3d(0, -100, 0));
+
+    Entity* background = game_background(vector3d(0, 1000, 0));
 
     floor_real_new(vector3d(-4, 0, -7));
     floor_position_array[0] = 0;
@@ -144,6 +146,7 @@ int main(int argc, char* argv[])
             timescore = SDL_GetTicks() - timescore;
             slog("Time(s): %i", timescore / 1000);
             slog("Distance: %i", finalscore);
+            background->model = gf3d_model_load("background_death");
             done = true;
         }
 
@@ -176,6 +179,7 @@ int main(int argc, char* argv[])
             timer = SDL_GetTicks() / 1000.0;
             reset = false;
             done = false;
+            background->model = gf3d_model_load("background_game");
         }
 
         if (keys[SDL_SCANCODE_ESCAPE])

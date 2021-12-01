@@ -22,7 +22,7 @@ Entity *floor_real_new(Vector3D position)
         return NULL;
     }
 
-    ent->model = gf3d_model_load("floor_real");
+    ent->model = gf3d_model_load("floor");
     ent->scale = vector3d(3, 11, 0.5);
     vector3d_copy(ent->position, position);
     return ent;
@@ -39,7 +39,7 @@ Entity *floor_fake_new(Vector3D position)
         return NULL;
     }
 
-    ent->model = gf3d_model_load("floor_real");
+    ent->model = gf3d_model_load("floor");
     ent->scale = vector3d(0, 0, 0);
     ent->think = floor_think;
     ent->update = floor_update;

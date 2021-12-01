@@ -14,6 +14,23 @@ typedef struct
 }World;
 */
 
+
+Entity* game_background(Vector3D position)
+{
+    Entity* ent = NULL;
+
+    ent = entity_new();
+    if (!ent)
+    {
+        slog("No world");
+        return NULL;
+    }
+    ent->model = gf3d_model_load("background_game");
+    ent->scale = vector3d(2000, 1, 2000);
+    vector3d_copy(ent->position, position);
+    return ent;
+}
+
 World *world_load(char *filename)
 {
     SJson *json,*wjson;
