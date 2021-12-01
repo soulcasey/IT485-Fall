@@ -7,6 +7,7 @@
 #include "agumon.h"
 #include "game.h"
 #include <math.h>
+#include "gfc_audio.h"
 
 bool floor_real_step();
 bool player_move();
@@ -15,6 +16,7 @@ bool player_grounded();
 void player_think(Entity *self);
 void player_update(Entity *self);
 
+bool reset = false;
 bool left = true; //Check if player is on the left glass
 bool leftfeet = true;
 bool move = false; //Check if the player is not standing still
@@ -48,7 +50,7 @@ Entity *player_new(Vector3D position)
         slog("UGH OHHHH, no player for you!");
         return NULL;
     }
-    ent->model = gf3d_model_load("bot");
+    ent->model = gf3d_model_load("player");
     ent->scale = vector3d(0.2, 0.2, 0.2);
     ent->think = player_think;
     ent->update = player_update;
@@ -58,9 +60,21 @@ Entity *player_new(Vector3D position)
     ent->position.z = -5.2;
 }
 
+Sound* death_sound()
+{
+    Sound* audio = NULL;
+    audio = gfc_sound_load("sounds/death.wav", 0.5, 0);
+    if (!audio)
+    {
+        slog("Failed AHHHHHHHHHHHHHHHHHHHHHHHHHHHH");
+        return NULL;
+    }
+    return audio;
+}
+
 int player_position_y()
 {
-    return position_y;
+    return position_y + 11;
 }
 
 bool player_grounded()
@@ -78,12 +92,42 @@ void player_think(Entity* self)
     const Uint8* keys;
     keys = SDL_GetKeyboardState(NULL); // get the keyboard state for this frame
 
-    if ((agumon_turn() && player_move()) || gf3d_camera_get_z_position() > 50) // Death when player move while agumon turn or fall
+    if ((agumon_turn() && player_move()) || gf3d_camera_get_z_position() > 50 || dead) // Death when player move while agumon turn or fall
     {
-        self->position = vector3d(0, 0, -100);
+        if (!dead)
+        {
+            gfc_sound_play(death_sound(), 0, 0.5, -1, -1);
+        }
+        self->position = vector3d(0, -115, 0);
         dead = true;
-        self->rotation.x = 0;
-        self->rotation.y = 0;
+    }
+
+    if (dead && keys[SDL_SCANCODE_RETURN]) // Restart
+    {
+        dead = false;
+        self->scale = vector3d(0.2, 0.2, 0.2);
+        self->position.x = -4;
+        self->position.y = -11;
+        self->position.z = -5.2;
+        self->velocity.x = 0;
+        self->velocity.y = 0;
+        self->velocity.z = 0;
+        left = true;
+        grounded = true;
+        status = 1;
+        turn = false;
+        front_turn_timer = 0.5;
+        back_turn_timer = 1;
+        back_stay_timer = 4;
+        speed = 0.5;
+        jump_rest_timer = 20;
+        reset = true;
+    }
+
+    if (dalgoona_game && keys[SDL_SCANCODE_SPACE]) // Eating Dalgoona
+    {
+        dalgoona_count++;
+        slog("Munch");
     }
 
     if (!dead && !dalgoona_game)
@@ -217,7 +261,7 @@ void player_update(Entity *self)
     }
     else
     {
-        camera_position = vector3d(self->position.x, self->position.y - 1.2, self->position.z);
+        camera_position = vector3d(self->position.x, self->position.y + 1, self->position.z + 1);
     }
     gf3d_camera_set_position(camera_position);
     gf3d_camera_set_rotation(vector3d(-M_PI, M_PI, 0));
@@ -226,21 +270,6 @@ void player_update(Entity *self)
 bool player_dead()
 {
     return dead;
-}
-
-bool floor_real_step()
-{
-    for (int i = 0; i < 11; i++)
-    {
-        if (((floor_position_array[i] <= 0) && left) || ((floor_position_array[i] > 0) && !left))
-        {
-            if ((abs(player_position_y()) >= (abs(floor_position_array[i]) - 11)) && (abs(player_position_y()) <= (abs(floor_position_array[i]) + 11)))
-            {
-                return true;
-            }
-        }
-    }
-    return false;
 }
 
 /*eol@eof*/

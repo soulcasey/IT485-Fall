@@ -22,6 +22,14 @@
 #include "item.h"
 #include "game.h"
 
+bool floor_real_step();
+int floor_position_array[11];
+int finalscore;
+bool dalgoona_game = false;
+int dalgoona_count = 0;
+bool dalgonna_crunch = false;
+int timescore;
+
 int main(int argc, char* argv[])
 {
     srand(time(NULL));
@@ -30,14 +38,7 @@ int main(int argc, char* argv[])
     bool hub = false;
     bool done = false;
 
-    bool dalgoona_game = false;
-    int dalgoona_count = 0;
-    bool dalgonna_crunch = false;
-
-    int score;
-    const Uint8* keys;
     Uint8 validate = 0;
-    int floor_position_array[11];
     World* w;
 
     for (int a = 1; a < argc; a++)
@@ -60,19 +61,24 @@ int main(int argc, char* argv[])
     );
     slog_sync();
 
-    score = SDL_GetTicks();
+    timescore = SDL_GetTicks();
     
     entity_system_init(1024);
 
-    gfc_audio_init(2, 1, 1, 1, true, true);
+    gfc_audio_init(3, 1, 1, 1, true, true);
 
     Entity* agumon = agumon_new(vector3d(0, 320, 0));
+
+    Entity* death = agumon_death(vector3d(0, -100, 0));
 
     floor_real_new(vector3d(-4, 0, -7));
     floor_position_array[0] = 0;
     Entity* item;
 
-    int item_random = 3;
+    Entity* real[10];
+    Entity* fake[10];
+
+    int item_random = 4;
     for (int i = 0; i < 10; i++)
     {
         int random = rand() % 100;
@@ -88,18 +94,18 @@ int main(int argc, char* argv[])
         {
             item = item_new(vector3d(4 * random, (i + 1) * 30, -6));
         }
-        floor_real_new(vector3d(4 * random, (i + 1) * 30, -7));
+        real[i] = floor_real_new(vector3d(4 * random, (i + 1) * 30, -7));
         floor_position_array[i + 1] = (i + 1) * 30  * random;
-        floor_fake_new(vector3d(-4 * random, (i + 1) * 30, -7));
+        fake[i] = floor_fake_new(vector3d(-4 * random, (i + 1) * 30, -7));
     }
 
     gf3d_camera_set_scale(vector3d(1, 1, 1));
     Entity* player = player_new(vector3d(-4, -11, 0));
 
-
     while (!hub)
     {
         SDL_PumpEvents();   // update SDL's internal event structures
+        const Uint8* keys;
         keys = SDL_GetKeyboardState(NULL); // get the keyboard state for this frame
 
         entity_think_all();
@@ -115,41 +121,57 @@ int main(int argc, char* argv[])
 
         gf3d_vgraphics_render_end();
 
-        if ((abs(player_position_y() - (item_random+1)*30) <= 1) && item->_inuse == 1)
+        if ((abs(player_position_y() - 11 - (item_random+1)*30) <= 1) && item->_inuse == 1 && !dalgoona_game && !player_dead()) // Start dalgoona game when reach
         {
+            dalgoona_count = 0;
             dalgoona_game = true;
-            if (dalgoona_count >= 10)
-            {
-                slog("Yum Dalgoona");
-                dalgoona_game = false;
-                speed *= 2;
-                jump_rest_timer /= 2;
-                entity_free(item);
-            }
-            if (keys[SDL_SCANCODE_SPACE] && !dalgonna_crunch)
-            {
-                dalgoona_count += 1;
-                dalgonna_crunch = true;
-            }
-            if (!keys[SDL_SCANCODE_SPACE] && dalgonna_crunch)
-            {
-                dalgonna_crunch = false;
-            }
+            slog("Dalgoona Start");
+        }
+
+        if (dalgoona_count >= 10) // End dalgoona game
+        {
+            dalgoona_count = 0;
+            dalgoona_game = false;
+            slog("Yum Dalgoona");
+            dalgoona_game = false;
+            speed *= 2;
+            jump_rest_timer /= 2;
+            item->scale = vector3d(0, 0, 0);
         }
 
         if (((-gf3d_camera_get_y_position() > 290) || player_dead()) && !done) // Death
         {
-            score = SDL_GetTicks() - score;
-            slog("Score(s): %i", score / 1000);
+            timescore = SDL_GetTicks() - timescore;
+            slog("Time(s): %i", timescore / 1000);
+            slog("Distance: %i", finalscore);
             done = true;
+        }
+
+        if (reset) // Rerandomize floor
+        {
+            for (int i = 0; i < 10; i++)
+            {
+                int random = rand() % 100;
+                if (random < 50)
+                {
+                    random = 1;
+                }
+                else
+                {
+                    random = -1;
+                }
+                real[i]->position.x *= random;
+                floor_position_array[i + 1] *= random;
+                item->position.x *= random;
+                item->scale = vector3d(0.5, 0.5, 0.5);
+                fake[i]->position.x *= random;
+                dalgoona_game = false;
+            }
+            timescore = SDL_GetTicks();
+            reset = false;
         }
 
         if (keys[SDL_SCANCODE_ESCAPE])
-        {
-            done = true;
-        }
-
-        if (done && keys[SDL_SCANCODE_ESCAPE])
         {
             hub = true;
         }
@@ -157,6 +179,21 @@ int main(int argc, char* argv[])
     world_delete(w);
     entity_free(agumon);
     slog_sync();
+}
+
+bool floor_real_step()
+{
+    for (int i = 0; i < 11; i++)
+    {
+        if (((floor_position_array[i] <= 0) && left) || ((floor_position_array[i] > 0) && !left))
+        {
+            if ((player_position_y() >= (abs(floor_position_array[i]))) && (player_position_y() <= (abs(floor_position_array[i]) + 22)))
+            {
+                return true;
+            }
+        }
+    }
+    return false;
 }
 
 /*eol@eof*/

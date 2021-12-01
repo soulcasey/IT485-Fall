@@ -14,7 +14,11 @@ bool player_move();
 
 bool player_grounded();
 
+bool reset;
+
 bool player_dead();
+
+bool left;
 
 int player_position_y();
 

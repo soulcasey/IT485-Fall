@@ -4,10 +4,12 @@
 #include "entity.h"
 #include <stdbool.h>
 
-int floor_array(int n);
-
-int floor_position_array[11];
+bool floor_real_step();
 
 bool dalgoona_game;
+
+int dalgoona_count;
+
+int finalscore;
 
 #endif

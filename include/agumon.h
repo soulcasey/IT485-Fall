@@ -11,10 +11,16 @@
  */
 Entity* agumon_new(Vector3D position);
 
-Sound* red_light();
-
 bool agumon_turn();
 
 bool agumon_initial();
+
+int status;
+
+bool turn;
+
+double front_turn_timer;
+double back_turn_timer;
+double back_stay_timer;
 
 #endif
