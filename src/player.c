@@ -40,8 +40,16 @@ bool jump_right = false;
 bool jump_stop = false; //Avoid accidental double jump
 bool dead = false;
 
+Model* stand;
+Model* run;
+Model* jump;
+
 Entity *player_new(Vector3D position)
 {
+    stand = gf3d_model_load("player_stand");
+    run = gf3d_model_load("player");
+    jump = gf3d_model_load("player_jump");
+
     Entity *ent = NULL;
 
     ent = entity_new();
@@ -50,7 +58,7 @@ Entity *player_new(Vector3D position)
         slog("UGH OHHHH, no player for you!");
         return NULL;
     }
-    ent->model = gf3d_model_load("player");
+    ent->model = run;
     ent->scale = vector3d(0.2, 0.2, 0.2);
     ent->think = player_think;
     ent->update = player_update;
@@ -102,7 +110,7 @@ void player_think(Entity* self)
         self->position = vector3d(0, -115, 0);
         dead = true;
     }
-
+    /*
     if (keys[SDL_SCANCODE_1])
     {
         self->model = gf3d_model_load("player");
@@ -122,7 +130,17 @@ void player_think(Entity* self)
     {
         self->model = gf3d_model_load("player4");
     }
-    
+
+    */
+
+    if (!grounded)
+    {
+        self->model = jump;
+    }
+    else
+    {
+        self->model = stand;
+    }
 
     if ((dead && keys[SDL_SCANCODE_RETURN])) // Restart
     {
