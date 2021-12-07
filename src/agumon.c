@@ -64,7 +64,7 @@ Entity* agumon_death(Vector3D position)
 Sound* redlight()
 {
     Sound* audio = NULL;
-    audio = gfc_sound_load("sounds/redlight.wav", 0.5, 0);
+    audio = gfc_sound_load("sounds/redlight.wav", 1, 0);
     if (!audio)
     {
         slog("Failed AHHHHHHHHHHHHHHHHHHHHHHHHHHHH");
@@ -76,7 +76,7 @@ Sound* redlight()
 Sound* greenlight()
 {
     Sound* audio = NULL;
-    audio = gfc_sound_load("sounds/greenlight.wav", 0.5, 0);
+    audio = gfc_sound_load("sounds/greenlight.wav", 1, 0);
     if (!audio)
     {
         slog("Failed AHHHHHHHHHHHHHHHHHHHHHHHHHHHH");
@@ -109,7 +109,7 @@ void agumon_update(Entity* self)
         {
             if (self->rotation.z == 0)
             {
-                gfc_sound_play(greenlight(), 0, 0.5, -1, -1);
+                gfc_sound_play(greenlight(), 0, 0.2, -1, -1);
             }
             double rotation = 3.14 * (SDL_GetTicks() / 1000.0 - timer) / back_turn_timer;
             self->rotation.z -= rotation;
@@ -132,7 +132,7 @@ void agumon_update(Entity* self)
             {
                 status = 3;
                 timer = SDL_GetTicks() / 1000.0;
-                gfc_sound_play(redlight(), 0, 0.5, -1, -1);
+                gfc_sound_play(redlight(), 0, 0.2, -1, -1);
             }
         }
 

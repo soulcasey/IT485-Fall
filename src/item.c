@@ -6,13 +6,13 @@
 #include <stdlib.h>
 #include "item.h"
 
-void item_think(Entity* self);
-void item_update(Entity* self);
-int item_position_y();
+void dalgoona_think(Entity* self);
+void dalgoona_update(Entity* self);
+int dalgoona_position_y();
 
 float position_y;
 
-Entity* item_new(Vector3D position)
+Entity* dalgoona_new(Vector3D position)
 {
     Entity* ent = NULL;
 
@@ -23,26 +23,27 @@ Entity* item_new(Vector3D position)
         return NULL;
     }
 
-    ent->model = gf3d_model_load("item");
+    ent->model = gf3d_model_load("dalgoona");
     ent->scale = vector3d(0.5, 0.5, 0.5);
-    ent->think = item_think;
-    ent->update = item_update;
+    ent->think = dalgoona_think;
+    ent->update = dalgoona_update;
     vector3d_copy(ent->position, position);
     return ent;
 }
 
-void item_think(Entity* self)
+void dalgoona_think(Entity* self)
 {
     if (!self)return;
     position_y = self->position.y;
 }
 
-void item_update(Entity* self)
+void dalgoona_update(Entity* self)
 {
     if (!self)return;
+
 }
 
-int item_position_y()
+int dalgoona_position_y()
 {
     return position_y;
 }

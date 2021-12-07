@@ -19,7 +19,7 @@ void player_update(Entity *self);
 bool reset = false;
 bool left = true; //Check if player is on the left glass
 bool leftfeet = true;
-bool move = false; //Check if the player is not standing still
+bool move = true; //Check if the player is not standing still
 double speed = 0.5;
 
 float position_y;
@@ -63,7 +63,7 @@ Entity *player_new(Vector3D position)
 Sound* death_sound()
 {
     Sound* audio = NULL;
-    audio = gfc_sound_load("sounds/death.wav", 0.5, 0);
+    audio = gfc_sound_load("sounds/death.wav", 1, 0);
     if (!audio)
     {
         slog("Failed AHHHHHHHHHHHHHHHHHHHHHHHHHHHH");
@@ -96,12 +96,33 @@ void player_think(Entity* self)
     {
         if (!dead)
         {
-            gfc_sound_play(death_sound(), 0, 0.5, -1, -1);
+            gfc_sound_play(death_sound(), 0, 0.2, -1, -1);
         }
         finalscore = self->position.y + 11;
         self->position = vector3d(0, -115, 0);
         dead = true;
     }
+
+    if (keys[SDL_SCANCODE_1])
+    {
+        self->model = gf3d_model_load("player");
+    }
+
+    else if (keys[SDL_SCANCODE_2])
+    {
+        self->model = gf3d_model_load("player2");
+    }
+
+    else if (keys[SDL_SCANCODE_3])
+    {
+        self->model = gf3d_model_load("player3");
+    }
+
+    else if (keys[SDL_SCANCODE_4])
+    {
+        self->model = gf3d_model_load("player4");
+    }
+    
 
     if ((dead && keys[SDL_SCANCODE_RETURN])) // Restart
     {
@@ -121,18 +142,28 @@ void player_think(Entity* self)
         back_turn_timer = 1;
         back_stay_timer = 4;
         speed = 0.5;
-        jump_rest_timer = 10;
-        reset = true;
+        jump_rest_timer = 10; 
         finalscore = 0;
+        jump_left = false;
+        jump_right = false;
+        jump_forward = false;
+        reset = true;
     }
 
-    if (dalgoona_game && keys[SDL_SCANCODE_SPACE]) // Eating Dalgoona
+    if (dalgoona_game&& keys[SDL_SCANCODE_SPACE] && !dalgoona_crunch) // Eating Dalgoona
     {
         dalgoona_count++;
+        dalgoona_crunch = true;
         slog("Munch");
     }
 
-    if (!dead && !dalgoona_game)
+    if (dalgoona_game && !keys[SDL_SCANCODE_SPACE] && dalgoona_crunch) // Eating Dalgoona
+    {
+        dalgoona_crunch = false;
+    }
+
+
+    if (!dead && !dalgoona_game && gamestart)
     {
         if (keys[SDL_SCANCODE_A] && keys[SDL_SCANCODE_D] && grounded)
         {
@@ -162,7 +193,7 @@ void player_think(Entity* self)
             move = true;
         }
 
-        if ((keys[SDL_SCANCODE_W] || keys[SDL_SCANCODE_Q] || keys[SDL_SCANCODE_E] || jump_forward || jump_left || jump_right) && !jump_stop && jump_rest_count >= jump_rest_timer)
+        if ((keys[SDL_SCANCODE_W] || keys[SDL_SCANCODE_Q] || keys[SDL_SCANCODE_E] || jump_forward || jump_left || jump_right) && !jump_stop && jump_rest_count >= jump_rest_timer && self->position.z > -7.2)
         {
             if (grounded)
             {

@@ -9,8 +9,8 @@
  * @param position where to spawn the item at
  * @return NULL on error, or an item entity pointer on success
  */
-Entity* item_new(Vector3D position);
+Entity* dalgoona_new(Vector3D position);
 
-int item_position_y();
+int dalgoona_position_y();
 
 #endif

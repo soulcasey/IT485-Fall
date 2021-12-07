@@ -10,6 +10,12 @@ bool dalgoona_game;
 
 int dalgoona_count;
 
+bool dalgoona_finish;
+
+bool dalgoona_crunch;
+
 int finalscore;
+
+bool gamestart;
 
 #endif
