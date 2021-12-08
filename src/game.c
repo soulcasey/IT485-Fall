@@ -21,6 +21,7 @@
 #include "floor.h"
 #include "item.h"
 #include "game.h"
+#include "gf3d_sprite.h"
 
 bool floor_real_step();
 int floor_position_array[11];
@@ -33,6 +34,7 @@ int timescore;
 
 int mousex, mousey;
 float mouseFrame = 0;
+Sprite *mouse = NULL;
 
 bool gamestart = true;
 
@@ -62,12 +64,14 @@ int main(int argc, char* argv[])
         1920,                   //screen width
         1080,                   //screen height
         vector4d(1, 0, 0, 1),      //background color
-        1,                      //fullscreen
+        0,                      //fullscreen
         validate                //validation
     );
     slog_sync();
     
     entity_system_init(1024);
+
+    mouse = gf3d_sprite_load("images/pointer.png", 32, 32, 16);
 
     timescore = SDL_GetTicks();
 
@@ -115,6 +119,11 @@ int main(int argc, char* argv[])
         SDL_PumpEvents();   // update SDL's internal event structures
         const Uint8* keys;
         keys = SDL_GetKeyboardState(NULL); // get the keyboard state for this frame
+        SDL_GetMouseState(&mousex, &mousey);
+
+        mouseFrame += 0.01;
+        if (mouseFrame >= 16)mouseFrame = 0;
+
 
         entity_think_all();
         entity_update_all();
@@ -126,7 +135,7 @@ int main(int argc, char* argv[])
         gf3d_vgraphics_render_start();
         world_draw(w);
         entity_draw_all();
-
+        gf3d_sprite_draw(mouse, vector2d(mousex, mousey), vector2d(1, 1), (Uint32)mouseFrame);
         gf3d_vgraphics_render_end();
 
         if ((abs(player_position_y() - 11 - (dalgoona_random+1)*30) <= 1) && !dalgoona_finish && !dalgoona_game && !player_dead()) // Start dalgoona game when reach
