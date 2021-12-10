@@ -7,6 +7,7 @@
 #include <stdlib.h>
 #include "gfc_audio.h"
 #include "player.h"
+#include "game.h"
 
 void agumon_think(Entity *self);
 void agumon_update(Entity *self);
@@ -41,7 +42,6 @@ Entity *agumon_new(Vector3D position)
     ent->update = agumon_update;
     ent->scale = vector3d(4, 4, 4);
     vector3d_copy(ent->position,position);
-    timer = SDL_GetTicks() / 1000.0;
 
     return ent;
 }
@@ -103,7 +103,7 @@ void agumon_think(Entity *self)
 void agumon_update(Entity* self)
 {
     if (!self)return;
-    if (!player_dead())
+    if (!player_dead() && gamestart)
     {
         if (status == 1)
         {

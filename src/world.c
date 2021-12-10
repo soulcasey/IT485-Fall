@@ -14,6 +14,24 @@ typedef struct
 }World;
 */
 
+Entity* main_menu(Vector3D position)
+{
+    Entity* ent = NULL;
+
+    ent = entity_new();
+    if (!ent)
+    {
+        slog("No menu");
+        return NULL;
+    }
+
+    ent->model = gf3d_model_load("ui");
+    ent->scale = vector3d(1, 1, 1);
+    ent->rotation.z = M_PI;
+    vector3d_copy(ent->position, position);
+    return ent;
+}
+
 
 Entity* game_background(Vector3D position)
 {

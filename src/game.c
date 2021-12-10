@@ -34,7 +34,7 @@ int timescore;
 int mousex, mousey;
 float mouseFrame = 0;
 
-bool gamestart = true;
+bool gamestart = false;
 
 int main(int argc, char* argv[])
 {
@@ -77,6 +77,7 @@ int main(int argc, char* argv[])
 
     Entity* death = agumon_death(vector3d(0, -100, 0));
 
+    Entity* mainmenu = main_menu(vector3d(-2.5, -35, -5));
     Entity* background = game_background(vector3d(0, 1000, 0));
 
     floor_real_new(vector3d(-4, 0, -7));

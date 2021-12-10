@@ -91,6 +91,21 @@ Model * gf3d_model_load(char * filename)
     return model;
 }
 
+Model* gf3d_model_load_player(char* filename, char* imagename)
+{
+    TextLine assetname;
+    Model* model;
+    model = gf3d_model_new();
+    if (!model)return NULL;
+    snprintf(assetname, GFCLINELEN, "models/%s.obj", filename);
+    model->mesh = gf3d_mesh_load(assetname);
+
+    snprintf(assetname, GFCLINELEN, "images/%s.png", imagename);
+    model->texture = gf3d_texture_load(assetname);
+
+    return model;
+}
+
 void gf3d_model_free(Model *model)
 {
     gf3d_model_delete(model);

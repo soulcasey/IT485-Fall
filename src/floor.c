@@ -10,7 +10,6 @@
 void floor_think(Entity* self);
 void floor_update(Entity* self);
 
-
 Entity *floor_real_new(Vector3D position)
 {
     Entity *ent = NULL;
@@ -18,7 +17,7 @@ Entity *floor_real_new(Vector3D position)
     ent = entity_new();
     if (!ent)
     {
-        slog("No world");
+        slog("No floor");
         return NULL;
     }
 
@@ -35,7 +34,7 @@ Entity *floor_fake_new(Vector3D position)
     ent = entity_new();
     if (!ent)
     {
-        slog("No world");
+        slog("No floor");
         return NULL;
     }
 

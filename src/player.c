@@ -8,6 +8,7 @@
 #include "game.h"
 #include <math.h>
 #include "gfc_audio.h"
+#include "simple_json.h"
 
 bool floor_real_step();
 bool player_move();
@@ -29,7 +30,7 @@ double jump_speed = 0.05;
 double jump_forward_speed = 0.04;
 double jump_side_speed = 0.028;
 int jump_rest_count = 0;//Need to walk 20 steps for next jump
-int jump_rest_timer = 10;
+int jump_rest_timer = 32;
 Vector3D camera_position;
 
 bool grounded = true; //Check if the player is on ground
@@ -44,11 +45,18 @@ Model* stand;
 Model* run;
 Model* jump;
 
+const char* color;
+SJson* json, * wjson;
+
 Entity *player_new(Vector3D position)
 {
-    stand = gf3d_model_load("player_stand");
-    run = gf3d_model_load("player");
-    jump = gf3d_model_load("player_jump");
+    json = sj_load("config/player.json");
+    wjson = sj_object_get_value(json, "player");
+    color = sj_get_string_value(sj_object_get_value(wjson, "color"));
+
+    stand = gf3d_model_load_player("player_stand",color);
+    run = gf3d_model_load_player("player", color);
+    jump = gf3d_model_load_player("player_jump", color);
 
     Entity *ent = NULL;
 
@@ -59,13 +67,17 @@ Entity *player_new(Vector3D position)
         return NULL;
     }
     ent->model = run;
-    ent->scale = vector3d(0.2, 0.2, 0.2);
+    ent->scale = vector3d(0.03, 0.03, 0.03);
     ent->think = player_think;
     ent->update = player_update;
     vector3d_copy(ent->position,position);
-    ent->rotation.x = -M_PI;
     ent->rotation.y = M_PI;
-    ent->position.z = -5.2;
+    ent->position.z = 0;
+
+    camera_position = vector3d(ent->position.x, ent->position.y +10, ent->position.z + 2);
+    gf3d_camera_set_position(camera_position);
+    gf3d_camera_set_rotation(vector3d(-M_PI, M_PI, -M_PI));
+
 }
 
 Sound* death_sound()
@@ -100,7 +112,14 @@ void player_think(Entity* self)
     const Uint8* keys;
     keys = SDL_GetKeyboardState(NULL); // get the keyboard state for this frame
 
-    if (((agumon_turn() && player_move()) || gf3d_camera_get_z_position() > 50 || dead) && !reset) // Death when player move while agumon turn or fall
+    if (keys[SDL_SCANCODE_RETURN] && !gamestart) //Start game
+    {
+        timer = SDL_GetTicks() / 1000.0;
+        gamestart = true;
+        dead = true;
+    }
+
+    /*if (((agumon_turn() && player_move()) || gf3d_camera_get_z_position() > 50 || dead) && !reset) // Death when player move while agumon turn or fall
     {
         if (!dead)
         {
@@ -109,29 +128,46 @@ void player_think(Entity* self)
         finalscore = self->position.y + 11;
         self->position = vector3d(0, -115, 0);
         dead = true;
-    }
-    /*
+    }*/
+    
     if (keys[SDL_SCANCODE_1])
     {
-        self->model = gf3d_model_load("player");
+        color = "yellow";
+        
+        stand = gf3d_model_load_player("player_stand", color);
+        run = gf3d_model_load_player("player", color);
+        jump = gf3d_model_load_player("player_jump", color);
+        self->model = run;
     }
 
     else if (keys[SDL_SCANCODE_2])
     {
-        self->model = gf3d_model_load("player2");
+        color = "blue";
+        stand = gf3d_model_load_player("player_stand", color);
+        run = gf3d_model_load_player("player", color);
+        jump = gf3d_model_load_player("player_jump", color);
+        self->model = run;
     }
 
     else if (keys[SDL_SCANCODE_3])
     {
-        self->model = gf3d_model_load("player3");
+        color = "green";
+        stand = gf3d_model_load_player("player_stand", color);
+        run = gf3d_model_load_player("player", color);
+        jump = gf3d_model_load_player("player_jump", color);
+        self->model = run;
     }
 
     else if (keys[SDL_SCANCODE_4])
     {
-        self->model = gf3d_model_load("player4");
+        color = "red";
+        stand = gf3d_model_load_player("player_stand", color);
+        run = gf3d_model_load_player("player", color);
+        jump = gf3d_model_load_player("player_jump", color);
+        self->model = run;
     }
 
-    */
+    
 
     if (!grounded)
     {
@@ -160,7 +196,7 @@ void player_think(Entity* self)
         back_turn_timer = 1;
         back_stay_timer = 4;
         speed = 0.5;
-        jump_rest_timer = 10; 
+        jump_rest_timer = 32; 
         finalscore = 0;
         jump_left = false;
         jump_right = false;
@@ -304,16 +340,19 @@ void player_think(Entity* self)
 void player_update(Entity *self)
 {
     if (!self)return;
-    if (!dead)
+    if (gamestart)
     {
-        camera_position = vector3d(self->position.x, self->position.y - 15, self->position.z + 3);
+        if (!dead)
+        {
+            camera_position = vector3d(self->position.x, self->position.y - 15, self->position.z + 3);
+        }
+        else
+        {
+            camera_position = vector3d(self->position.x, self->position.y + 1, self->position.z + 1);
+        }
+        gf3d_camera_set_position(camera_position);
+        gf3d_camera_set_rotation(vector3d(-M_PI, M_PI, 0));
     }
-    else
-    {
-        camera_position = vector3d(self->position.x, self->position.y + 1, self->position.z + 1);
-    }
-    gf3d_camera_set_position(camera_position);
-    gf3d_camera_set_rotation(vector3d(-M_PI, M_PI, 0));
 }
 
 bool player_dead()

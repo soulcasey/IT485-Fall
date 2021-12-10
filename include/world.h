@@ -21,6 +21,8 @@ World *world_load(char *filename);
 
 Entity* game_background(Vector3D position);
 
+Entity* main_menu(Vector3D position);
+
 void world_draw(World *world);
 
 void world_delete(World *world);
@@ -28,5 +30,6 @@ void world_delete(World *world);
 void world_run_updates(World *world);
 
 void world_add_entity(World *world,Entity *entity);
+
 
 #endif
