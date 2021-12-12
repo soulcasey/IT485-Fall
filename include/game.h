@@ -28,4 +28,6 @@ bool marble_wrong;
 
 bool done;
 
+bool win;
+
 #endif

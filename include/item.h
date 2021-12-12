@@ -11,6 +11,7 @@
  */
 Entity* dalgoona_new(Vector3D position);
 Entity* marble_new(Vector3D position);
+Entity* money_new(Vector3D position);
 
 int dalgoona_position_y();
 

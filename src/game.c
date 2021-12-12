@@ -56,12 +56,15 @@ int mousex, mousey;
 float mouseFrame = 0;
 Sprite* mouse = NULL;
 
+Sprite* victory;
+
 int mouse1[] = { 965, 325 };
 int mouse2[] = { 711, 785 };
 int mouse3[] = { 1220, 765 };
 
 bool done = false;
 bool gamestart = false;
+bool win = false;
 
 int main(int argc, char* argv[])
 {
@@ -104,7 +107,9 @@ int main(int argc, char* argv[])
     dalgoona_icon = gf3d_sprite_load("images/dalgoona_gain.png", 250, 250, 1);
     marble_icon = gf3d_sprite_load("images/marble_gain.png", 250, 250, 1);
 
-    gfc_audio_init(3, 1, 1, 1, true, true);
+    gfc_audio_init(4, 1, 1, 1, true, true);
+
+    Entity* money = money_new(vector3d(0, 320, 0));
 
     Entity* agumon = agumon_new(vector3d(0, 320, 0));
 
@@ -123,6 +128,7 @@ int main(int argc, char* argv[])
     Dalgoona_model = gf3d_model_load("dalgoona");
     Dalgonna_model_cracked = gf3d_model_load("dalgoona_crack");
 
+    victory = gf3d_sprite_load("images/win.png", 2303, 383, 1);
 
     Entity* real[10];
     Entity* fake[10];
@@ -197,16 +203,22 @@ int main(int argc, char* argv[])
         gf3d_sprite_draw(distance, vector2d(200, 500 - distancey), vector2d(1, 1), (Uint32)0);
         gf3d_sprite_draw(mouse, vector2d(mousex, mousey), vector2d(1, 1), (Uint32)mouseFrame);
 
+        money->rotation.z += 0.001;
+
         if (dalgoona_boost)
         {
-            gf3d_sprite_draw(dalgoona_icon, vector2d(160, 560), vector2d(1, 1), (Uint32)mouseFrame);
+            gf3d_sprite_draw(dalgoona_icon, vector2d(160, 560), vector2d(1, 1), (Uint32)0);
         }
 
         if (marble_boost)
         {
-            gf3d_sprite_draw(marble_icon, vector2d(160, 700), vector2d(1, 1), (Uint32)mouseFrame);
+            gf3d_sprite_draw(marble_icon, vector2d(160, 700), vector2d(1, 1), (Uint32)0);
         }
 
+        if (win)
+        {
+            gf3d_sprite_draw(victory, vector2d(400, 180), vector2d(1, 1), (Uint32)0);
+        }
 
         gf3d_vgraphics_render_end();
 
@@ -289,13 +301,14 @@ int main(int argc, char* argv[])
         }
 
 
-
         if ((-gf3d_camera_get_y_position() > 290) && !done) // Reached
         {
-            done = true;
             timescore = SDL_GetTicks() - timescore;
+            agumon->velocity.z = -0.01;
             slog("Time(s): %i", timescore / 1000);
             slog("Distance: %i", finalscore);
+            win = true;
+            done = true;
         }
 
         if (player_dead() && !done) // Death
@@ -346,6 +359,9 @@ int main(int argc, char* argv[])
             dalgoona_crack = false;
             dalgoona_boost = false;
             dalgoona->model = Dalgoona_model;
+
+            agumon->velocity.z = 0;
+            agumon->position.z = 0;
 
             marble_game = false;
             marble_finish = false;

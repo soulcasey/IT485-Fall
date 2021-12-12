@@ -52,6 +52,22 @@ Entity* marble_new(Vector3D position)
     return ent;
 }
 
+Entity* money_new(Vector3D position)
+{
+    Entity* ent = NULL;
+
+    ent = entity_new();
+    if (!ent)
+    {
+        slog("No world");
+        return NULL;
+    }
+    ent->model = gf3d_model_load("money");
+    ent->scale = vector3d(2, 2, 2);
+    vector3d_copy(ent->position, position);
+    return ent;
+}
+
 
 void dalgoona_think(Entity* self)
 {

@@ -49,6 +49,8 @@ Model* jump;
 const char* color;
 SJson* json, * wjson;
 
+bool end = false;
+
 Entity *player_new(Vector3D position)
 {
     json = sj_load("config/player.json");
@@ -95,6 +97,18 @@ Sound* death_sound()
     return audio;
 }
 
+Sound* winsound()
+{
+    Sound* audio = NULL;
+    audio = gfc_sound_load("sounds/yay.wav", 1, 0);
+    if (!audio)
+    {
+        slog("Failed AHHHHHHHHHHHHHHHHHHHHHHHHHHHH");
+        return NULL;
+    }
+    return audio;
+}
+
 int player_position_y()
 {
     return position_y + 11;
@@ -132,9 +146,23 @@ void player_think(Entity* self)
         finalscore = self->position.y + 11;
         self->position = vector3d(0, -115, 0);
         self->velocity.z = 0;
+        self->velocity.y = 0;
+        self->velocity.x = 0;
         dead = true;
     }
    
+   if (win && !end)
+   {
+       gfc_sound_play(winsound(), 0, 0.2, -1, -1);
+       self->velocity.z = 0;
+       self->velocity.y = 0;
+       self->velocity.x = 0;
+       self->model = stand;
+       end = true;
+   }
+
+
+
     /*
     if (keys[SDL_SCANCODE_1])
     {
@@ -176,7 +204,7 @@ void player_think(Entity* self)
     
 
 
-    if ((dead && keys[SDL_SCANCODE_RETURN])) // Restart
+    if (((dead || win) && keys[SDL_SCANCODE_RETURN])) // Restart
     {
         slog("reset");
         dead = false;
@@ -201,6 +229,8 @@ void player_think(Entity* self)
         jump_right = false;
         jump_forward = false;
         position_y = -11;
+        end = false;
+        win = false;
         reset = true;
     }
 
@@ -244,7 +274,7 @@ void player_think(Entity* self)
     }
 
 
-    if (!dead && !dalgoona_game && !marble_game && gamestart)
+    if (!dead && !dalgoona_game && !marble_game && gamestart && !done)
     {
         if (keys[SDL_SCANCODE_A] && keys[SDL_SCANCODE_D] && grounded)
         {
