@@ -29,8 +29,8 @@ double jump_height = 2;
 double jump_speed = 0.05;
 double jump_forward_speed = 0.04;
 double jump_side_speed = 0.028;
-int jump_rest_count = 0;//Need to walk 20 steps for next jump
-int jump_rest_timer = 32;
+int jump_rest_count = 0;//Need to walk x steps for next jump
+float jump_rest_timer = 30;
 Vector3D camera_position;
 
 bool grounded = true; //Check if the player is on ground
@@ -42,7 +42,8 @@ bool jump_stop = false; //Avoid accidental double jump
 bool dead = false;
 
 Model* stand;
-Model* run;
+Model* runleft;
+Model* runright;
 Model* jump;
 
 const char* color;
@@ -55,7 +56,8 @@ Entity *player_new(Vector3D position)
     color = sj_get_string_value(sj_object_get_value(wjson, "color"));
 
     stand = gf3d_model_load_player("player_stand",color);
-    run = gf3d_model_load_player("player", color);
+    runleft = gf3d_model_load_player("player_left", color);
+    runright = gf3d_model_load_player("player_right", color);
     jump = gf3d_model_load_player("player_jump", color);
 
     Entity *ent = NULL;
@@ -66,13 +68,14 @@ Entity *player_new(Vector3D position)
         slog("UGH OHHHH, no player for you!");
         return NULL;
     }
-    ent->model = run;
-    ent->scale = vector3d(0.03, 0.03, 0.03);
+    ent->model = stand;
+    ent->scale = vector3d(0.2, 0.2, 0.2);
     ent->think = player_think;
     ent->update = player_update;
     vector3d_copy(ent->position,position);
+    ent->position.z = -5.2;
     ent->rotation.y = M_PI;
-    ent->position.z = 0;
+    ent->rotation.z = M_PI;
 
     camera_position = vector3d(ent->position.x, ent->position.y +10, ent->position.z + 2);
     gf3d_camera_set_position(camera_position);
@@ -112,14 +115,15 @@ void player_think(Entity* self)
     const Uint8* keys;
     keys = SDL_GetKeyboardState(NULL); // get the keyboard state for this frame
 
+    position_y = self->position.y;
+
     if (keys[SDL_SCANCODE_RETURN] && !gamestart) //Start game
     {
         timer = SDL_GetTicks() / 1000.0;
         gamestart = true;
-        dead = true;
     }
 
-    /*if (((agumon_turn() && player_move()) || gf3d_camera_get_z_position() > 50 || dead) && !reset) // Death when player move while agumon turn or fall
+   if (((agumon_turn() && player_move()) || gf3d_camera_get_z_position() > 50 || dead) && !reset && !done) // Death when player move while agumon turn or fall
     {
         if (!dead)
         {
@@ -127,9 +131,11 @@ void player_think(Entity* self)
         }
         finalscore = self->position.y + 11;
         self->position = vector3d(0, -115, 0);
+        self->velocity.z = 0;
         dead = true;
-    }*/
-    
+    }
+   
+    /*
     if (keys[SDL_SCANCODE_1])
     {
         color = "yellow";
@@ -166,20 +172,13 @@ void player_think(Entity* self)
         jump = gf3d_model_load_player("player_jump", color);
         self->model = run;
     }
-
+    */
     
 
-    if (!grounded)
-    {
-        self->model = jump;
-    }
-    else
-    {
-        self->model = stand;
-    }
 
     if ((dead && keys[SDL_SCANCODE_RETURN])) // Restart
     {
+        slog("reset");
         dead = false;
         self->scale = vector3d(0.2, 0.2, 0.2);
         self->position.x = -4;
@@ -196,32 +195,61 @@ void player_think(Entity* self)
         back_turn_timer = 1;
         back_stay_timer = 4;
         speed = 0.5;
-        jump_rest_timer = 32; 
+        jump_rest_timer = 30; 
         finalscore = 0;
         jump_left = false;
         jump_right = false;
         jump_forward = false;
+        position_y = -11;
         reset = true;
     }
 
-    if (dalgoona_game&& keys[SDL_SCANCODE_SPACE] && !dalgoona_crunch) // Eating Dalgoona
+    if (dalgoona_game && keys[SDL_SCANCODE_SPACE] && !dalgoona_crunch) // Eating Dalgoona On
     {
         dalgoona_count++;
         dalgoona_crunch = true;
         slog("Munch");
     }
 
-    if (dalgoona_game && !keys[SDL_SCANCODE_SPACE] && dalgoona_crunch) // Eating Dalgoona
+    if (dalgoona_game && !keys[SDL_SCANCODE_SPACE] && dalgoona_crunch) // Eating Dalgoona Off
     {
         dalgoona_crunch = false;
     }
 
+    if (marble_game && !marble_wrong)
+    {
+        if (keys[SDL_SCANCODE_1])
+        {
+            if (!marble_even)
+            {
+                marble_finish = true;
+            }
+            else
+            {
+                marble_wrong = true;
+            }
+        }
 
-    if (!dead && !dalgoona_game && gamestart)
+        else if (keys[SDL_SCANCODE_2])
+        {
+            if (marble_even)
+            {
+                marble_finish = true;
+            }
+            else
+            {
+                marble_wrong = true;
+            }
+        }
+    }
+
+
+    if (!dead && !dalgoona_game && !marble_game && gamestart)
     {
         if (keys[SDL_SCANCODE_A] && keys[SDL_SCANCODE_D] && grounded)
         {
             move = false;
+            self->model = stand;
             //Ignore Left and Right pressed at the same time
         }
 
@@ -232,6 +260,7 @@ void player_think(Entity* self)
             move = true;
             jump_stop = false; //Reset jump to make sure user doesnt accidentally double jump
             jump_rest_count++;
+            self->model = runleft;
         }
         else if (keys[SDL_SCANCODE_D] && !leftfeet && grounded)
         {
@@ -240,6 +269,7 @@ void player_think(Entity* self)
             move = true;
             jump_stop = false;
             jump_rest_count++;
+            self->model = runright;
         }
 
         else
@@ -251,6 +281,7 @@ void player_think(Entity* self)
         {
             if (grounded)
             {
+                self->model = jump;
                 if (keys[SDL_SCANCODE_W])
                 {
                     jump_forward = true;
@@ -326,12 +357,13 @@ void player_think(Entity* self)
                 jump_right = false;
                 jump_stop = true;
                 jump_rest_count = 0;
+                self->model = stand;
             }
         }
-        position_y = self->position.y;
 
         if (grounded && !floor_real_step())
         {
+            slog("fall");
             self->velocity.z = -jump_speed * 1.5;
         }
     }

@@ -18,4 +18,14 @@ int finalscore;
 
 bool gamestart;
 
+bool marble_game;
+
+bool marble_even;
+
+bool marble_finish;
+
+bool marble_wrong;
+
+bool done;
+
 #endif

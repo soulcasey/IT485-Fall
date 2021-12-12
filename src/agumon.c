@@ -21,7 +21,7 @@ double front_turn_timer = 0.5;
 double front_stay_timer = 2;
 
 double back_turn_timer = 1;
-double back_stay_timer = 4;
+double back_stay_timer = 5;
 
 double timer; //Timer to check how many seconds passed 
 
@@ -103,7 +103,7 @@ void agumon_think(Entity *self)
 void agumon_update(Entity* self)
 {
     if (!self)return;
-    if (!player_dead() && gamestart)
+    if (!player_dead() && gamestart && !done)
     {
         if (status == 1)
         {
