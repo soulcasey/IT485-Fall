@@ -22,9 +22,9 @@
 #include "item.h"
 #include "game.h"
 #include "gf3d_sprite.h"
+#include "simple_json.h"
 
 bool floor_real_step();
-int floor_position_array[11];
 int finalscore;
 bool dalgoona_game = false;
 int dalgoona_count = 0;
@@ -46,7 +46,15 @@ Model* marble_model;
 Model* marble_model_hold;
 Sprite* marble_icon;
 
+Model* background_win;
+
+Sprite* moneyfall1;
+Sprite* moneyfall2;
+
 int timescore;
+int difficulty = 10;
+int floor_position_array[35];
+int difficulty_level = 2;
 
 Sprite* distance = NULL;
 Sprite* distancebar = NULL;
@@ -58,6 +66,8 @@ Sprite* mouse = NULL;
 
 Sprite* victory;
 
+Sprite* difficulty_icon;
+
 int mouse1[] = { 965, 325 };
 int mouse2[] = { 711, 785 };
 int mouse3[] = { 1220, 765 };
@@ -66,8 +76,14 @@ bool done = false;
 bool gamestart = false;
 bool win = false;
 
+SJson* json, * wjson;
+
 int main(int argc, char* argv[])
 {
+    json = sj_load("config/player.json");
+    wjson = sj_object_get_value(json, "world");
+    difficulty = 5 + atoi(sj_get_string_value(sj_object_get_value(wjson, "difficulty")));
+
     srand(time(NULL));
 
     bool active = false;
@@ -100,18 +116,19 @@ int main(int argc, char* argv[])
 
     mouse = gf3d_sprite_load("images/pointer.png", 32, 32, 16);
 
-    distance = gf3d_sprite_load("images/distance.png", 100, 100, 1);
-    distancebar = gf3d_sprite_load("images/distancebar.png", 100, 500, 1);
+    distance = gf3d_sprite_load("images/distance.png", 100, 100, 2);
+    distancebar = gf3d_sprite_load("images/distancebar.png", 100, 500, 2);
     timescore = SDL_GetTicks();
 
     dalgoona_icon = gf3d_sprite_load("images/dalgoona_gain.png", 250, 250, 1);
     marble_icon = gf3d_sprite_load("images/marble_gain.png", 250, 250, 1);
 
+    background_win = gf3d_model_load("background_win");
+
     gfc_audio_init(4, 1, 1, 1, true, true);
 
-    Entity* money = money_new(vector3d(0, 320, 0));
-
-    Entity* agumon = agumon_new(vector3d(0, 320, 0));
+    moneyfall1 = gf3d_sprite_load("images/moneyfall1.png", 650, 400, 1);
+    moneyfall2 = gf3d_sprite_load("images/moneyfall2.png", 650, 400, 1);
 
     Entity* death = agumon_death(vector3d(0, -100, 0));
 
@@ -128,13 +145,15 @@ int main(int argc, char* argv[])
     Dalgoona_model = gf3d_model_load("dalgoona");
     Dalgonna_model_cracked = gf3d_model_load("dalgoona_crack");
 
+    difficulty_icon = gf3d_sprite_load("images/medium.png", 600, 150, 1);
+
     victory = gf3d_sprite_load("images/win.png", 2303, 383, 1);
 
-    Entity* real[10];
-    Entity* fake[10];
+    Entity* real[35];
+    Entity* fake[35];
 
     int dalgoona_random = 0;
-    int marble_random = 4;
+    int marble_random = 2;
 
     int random = rand() % 100;
     if (random < 50)
@@ -149,7 +168,7 @@ int main(int argc, char* argv[])
         marble_model = gf3d_model_load("marble_odd");
     }
 
-    for (int i = 0; i < 10; i++)
+    for (int i = 0; i < difficulty; i++)
     {
         int random = rand() % 100;
         if (random < 50)
@@ -173,6 +192,12 @@ int main(int argc, char* argv[])
         floor_position_array[i + 1] = (i + 1) * 30  * random;
         fake[i] = floor_fake_new(vector3d(-4 * random, (i + 1) * 30, -7));
     }
+
+    int range = 30 * difficulty + 30;
+
+    Entity* agumon = agumon_new(vector3d(0, range, 0));
+    
+    Entity* money = money_new(vector3d(0, range, 0));
 
     gf3d_camera_set_scale(vector3d(1, 1, 1));
     Entity* player = player_new(vector3d(-4, -11, -0));
@@ -198,10 +223,13 @@ int main(int argc, char* argv[])
         world_draw(w);
         entity_draw_all();
 
-        distancey = 185.0 * player_position_y() / 290.0;
-        gf3d_sprite_draw(distancebar, vector2d(200, 300), vector2d(1, 1), (Uint32)0);
-        gf3d_sprite_draw(distance, vector2d(200, 500 - distancey), vector2d(1, 1), (Uint32)0);
-        gf3d_sprite_draw(mouse, vector2d(mousex, mousey), vector2d(1, 1), (Uint32)mouseFrame);
+
+        distancey = 225 * player_position_y() / range;
+        if (gamestart)
+        {
+            gf3d_sprite_draw(distancebar, vector2d(200, 300), vector2d(1, 1), (Uint32)0);
+            gf3d_sprite_draw(distance, vector2d(200, 500 - distancey), vector2d(1, 1), (Uint32)0);
+        }
 
         money->rotation.z += 0.001;
 
@@ -218,11 +246,45 @@ int main(int argc, char* argv[])
         if (win)
         {
             gf3d_sprite_draw(victory, vector2d(400, 180), vector2d(1, 1), (Uint32)0);
+            gf3d_sprite_draw(moneyfall1, vector2d(400, 500), vector2d(1, 1), (Uint32)0);
+            gf3d_sprite_draw(moneyfall2, vector2d(1200, 500), vector2d(1, 1), (Uint32)0);
         }
+       
+        if (!gamestart)
+        {
+            gf3d_sprite_draw(difficulty_icon, vector2d(160, 700), vector2d(1, 1), (Uint32)0);
+
+            if (difficulty_level == 1)
+            {
+                dalgoona->scale = vector3d(0, 0, 0);
+                marble->scale = vector3d(0, 0, 0);
+            }
+
+
+            if (difficulty_level == 2)
+            {
+                dalgoona->scale = vector3d(1, 1, 1);
+                marble->scale = vector3d(1, 1, 1);
+            }
+
+            if (difficulty_level == 3)
+            {
+                dalgoona->scale = vector3d(1, 1, 1);
+                marble->scale = vector3d(1, 1, 1);
+            }
+        }
+
+        gf3d_sprite_draw(mouse, vector2d(mousex, mousey), vector2d(1, 1), (Uint32)mouseFrame);
 
         gf3d_vgraphics_render_end();
 
-        if ((abs(player_position_y() - 11 - (dalgoona_random+1)*30) <= 1) && !dalgoona_finish && !dalgoona_game && !player_dead()) // Start dalgoona game when reach
+        if (difficulty_level == 1)
+        {
+            dalgoona->scale = vector3d(0, 0, 0);
+            marble->scale = vector3d(0, 0, 0);
+        }
+
+        if ((abs(player_position_y() - 11 - (dalgoona_random+1)*30) <= 1) && !dalgoona_finish && !dalgoona_game && !player_dead() && (difficulty_level != 1)) // Start dalgoona game when reach
         {
             dalgoona_count = 0;
             dalgoona_game = true;
@@ -276,7 +338,7 @@ int main(int argc, char* argv[])
             dalgoona_boost = true;
         }
 
-        if ((abs(player_position_y() - 11 - (marble_random + 1) * 30) <= 1) && !marble_finish && !marble_game && !player_dead()) // Start marble game when reach
+        if ((abs(player_position_y() - 11 - (marble_random + 1) * 30) <= 1) && !marble_finish && !marble_game && !player_dead() && (difficulty_level != 1)) // Start marble game when reach
         {
             marble_game = true;
             marble->scale = vector3d(0.5, 0.5, 0.5);
@@ -301,8 +363,9 @@ int main(int argc, char* argv[])
         }
 
 
-        if ((-gf3d_camera_get_y_position() > 290) && !done) // Reached
+        if ((-gf3d_camera_get_y_position() > range - 45) && !done) // Reached
         {
+            background->model = background_win;
             timescore = SDL_GetTicks() - timescore;
             agumon->velocity.z = -0.01;
             slog("Time(s): %i", timescore / 1000);
@@ -319,7 +382,7 @@ int main(int argc, char* argv[])
 
         if (reset) // Rerandomize floor
         {
-            for (int i = 0; i < 10; i++)
+            for (int i = 0; i < difficulty; i++)
             {
                 int random = rand() % 100;
                 if (random < 50)
@@ -393,7 +456,11 @@ int main(int argc, char* argv[])
         {
             hub = true;
         }
+
+
     }
+
+    vkDeviceWaitIdle(gf3d_vgraphics_get_default_logical_device());
     world_delete(w);
     entity_free(agumon);
     slog_sync();
@@ -401,7 +468,7 @@ int main(int argc, char* argv[])
 
 bool floor_real_step()
 {
-    for (int i = 0; i < 11; i++)
+    for (int i = 0; i < difficulty + 1; i++)
     {
         if (((floor_position_array[i] <= 0) && left) || ((floor_position_array[i] > 0) && !left))
         {

@@ -158,9 +158,12 @@ void agumon_update(Entity* self)
             {
                 status = 1;
                 timer = SDL_GetTicks() / 1000.0;
-                back_stay_timer *= 0.9; //Makes timer faster and faster 
-                back_turn_timer *= 0.9;
-                front_turn_timer *= 0.9;
+                if (back_stay_timer >= 1)
+                {
+                    back_stay_timer *= 0.9; //Makes timer faster and faster 
+                    back_turn_timer *= 0.9;
+                    front_turn_timer *= 0.9;
+                }
             }
         }
     }

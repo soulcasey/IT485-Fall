@@ -6,6 +6,7 @@
 #include <math.h>
 #include <stdlib.h>
 #include "agumon.h"
+#include "game.h";
 
 void floor_think(Entity* self);
 void floor_update(Entity* self);
@@ -60,7 +61,10 @@ void floor_update(Entity* self)
     }
     else
     {
-        self->scale = vector3d(0, 0, 0);
+        if (difficulty_level != 3)
+        {
+            self->scale = vector3d(0, 0, 0);
+        }
     }
 }
 

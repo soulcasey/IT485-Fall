@@ -3,6 +3,7 @@
 
 #include "entity.h"
 #include <stdbool.h>
+#include "gf3d_sprite.h"
 
 bool floor_real_step();
 
@@ -29,5 +30,11 @@ bool marble_wrong;
 bool done;
 
 bool win;
+
+int difficulty;
+
+Sprite* difficulty_icon;
+
+int difficulty_level;
 
 #endif

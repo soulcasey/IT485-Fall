@@ -82,7 +82,6 @@ Entity *player_new(Vector3D position)
     camera_position = vector3d(ent->position.x, ent->position.y +10, ent->position.z + 2);
     gf3d_camera_set_position(camera_position);
     gf3d_camera_set_rotation(vector3d(-M_PI, M_PI, -M_PI));
-
 }
 
 Sound* death_sound()
@@ -149,6 +148,7 @@ void player_think(Entity* self)
         self->velocity.y = 0;
         self->velocity.x = 0;
         dead = true;
+        self->model = stand;
     }
    
    if (win && !end)
@@ -161,48 +161,24 @@ void player_think(Entity* self)
        end = true;
    }
 
-
-
-    /*
-    if (keys[SDL_SCANCODE_1])
-    {
-        color = "yellow";
-        
-        stand = gf3d_model_load_player("player_stand", color);
-        run = gf3d_model_load_player("player", color);
-        jump = gf3d_model_load_player("player_jump", color);
-        self->model = run;
-    }
-
-    else if (keys[SDL_SCANCODE_2])
-    {
-        color = "blue";
-        stand = gf3d_model_load_player("player_stand", color);
-        run = gf3d_model_load_player("player", color);
-        jump = gf3d_model_load_player("player_jump", color);
-        self->model = run;
-    }
-
-    else if (keys[SDL_SCANCODE_3])
-    {
-        color = "green";
-        stand = gf3d_model_load_player("player_stand", color);
-        run = gf3d_model_load_player("player", color);
-        jump = gf3d_model_load_player("player_jump", color);
-        self->model = run;
-    }
-
-    else if (keys[SDL_SCANCODE_4])
-    {
-        color = "red";
-        stand = gf3d_model_load_player("player_stand", color);
-        run = gf3d_model_load_player("player", color);
-        jump = gf3d_model_load_player("player_jump", color);
-        self->model = run;
-    }
-    */
-    
-
+   if (!gamestart) // Main menu
+   {
+       if (keys[SDL_SCANCODE_1])
+       {
+           difficulty_level = 1;
+           difficulty_icon = gf3d_sprite_load("images/easy.png", 333, 179, 1);
+       }
+       else if(keys[SDL_SCANCODE_2])
+       {
+           difficulty_level = 2;
+           difficulty_icon = gf3d_sprite_load("images/medium.png", 600, 150, 1);
+       }
+       else if (keys[SDL_SCANCODE_3])
+       {
+           difficulty_level = 3;
+           difficulty_icon = gf3d_sprite_load("images/hard.png", 355, 150, 1);
+       }
+   }
 
     if (((dead || win) && keys[SDL_SCANCODE_RETURN])) // Restart
     {
@@ -221,7 +197,7 @@ void player_think(Entity* self)
         initial = false;
         front_turn_timer = 0.5;
         back_turn_timer = 1;
-        back_stay_timer = 4;
+        back_stay_timer = 5;
         speed = 0.5;
         jump_rest_timer = 30; 
         finalscore = 0;
@@ -232,6 +208,44 @@ void player_think(Entity* self)
         end = false;
         win = false;
         reset = true;
+    }
+
+    else if (((dead || win) && keys[SDL_SCANCODE_SPACE]))
+    {
+        slog("reset");
+        dead = false;
+        self->scale = vector3d(0.2, 0.2, 0.2);
+        self->position.x = -4;
+        self->position.y = -11;
+        self->position.z = -5.2;
+        self->velocity.x = 0;
+        self->velocity.y = 0;
+        self->velocity.z = 0;
+        left = true;
+        grounded = true;
+        turn = false;
+        initial = false;
+        front_turn_timer = 0.5;
+        back_turn_timer = 1;
+        back_stay_timer = 5;
+        if (difficulty_level == 3)
+        {
+            back_stay_timer = 2;
+        }
+        speed = 0.5;
+        jump_rest_timer = 30;
+        finalscore = 0;
+        jump_left = false;
+        jump_right = false;
+        jump_forward = false;
+        position_y = -11;
+        end = false;
+        win = false;
+        reset = true;
+        gamestart = false;
+        camera_position = vector3d(self->position.x, self->position.y + 10, self->position.z + 2);
+        gf3d_camera_set_position(camera_position);
+        gf3d_camera_set_rotation(vector3d(-M_PI, M_PI, -M_PI));
     }
 
     if (dalgoona_game && keys[SDL_SCANCODE_SPACE] && !dalgoona_crunch) // Eating Dalgoona On

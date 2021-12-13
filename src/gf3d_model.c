@@ -76,6 +76,7 @@ Model * gf3d_model_new()
     return NULL;
 }
 
+
 Model * gf3d_model_load(char * filename)
 {
     TextLine assetname;
